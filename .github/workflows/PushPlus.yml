@@ -1,44 +1,45 @@
 name: PushPlus Birthday Notice
 
 on:
+  # 触发器设置，基于定时任务触发
   schedule:
-    # 触发器设置，基于定时任务触发
+    # cron表达式，表示在北京时间每天中午12点10分（UTC时间4点10分）触发此工作流
     - cron: '10 4 * * *'
-      # cron表达式，表示在北京时间每天中午12点10分（UTC时间4点10分）触发此工作流
   # 允许手动触发工作流
   workflow_dispatch:
 
 jobs:
+  # 定义一个名为build的任务
   build:
-    # 定义一个名为build的任务
-    runs-on: ubuntu-latest
     # 指定此任务将在最新的Ubuntu镜像上运行
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
       # 步骤名称：检出代码
-      uses: actions/checkout@v3
+    - name: Checkout code
       # 使用GitHub Actions提供的checkout动作来检出代码到工作区
+      uses: actions/checkout@v3
 
-    - name: Set up Python
       # 步骤名称：设置Python环境
-      uses: actions/setup-python@v4
+    - name: Set up Python
       # 使用GitHub Actions提供的setup-python动作来安装Python环境
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x' # 使用最新的Python 3版本
 
     - name: Install dependencies
       # 步骤名称：安装依赖
       run: |
-        # 执行多行命令
-        python -m pip install --upgrade pip
         # 升级pip到最新版本
-        pip install requests
+        python -m pip install --upgrade pip
+        
         # 安装requests库
-        pip install lunardate # 假设lunardate包在此名称下发布或使用正确的包名
-        # 安装lunardate库（假设该库名正确）
+        pip install requests
+        
+        # 安装lunardate库
+        pip install lunardate 
 
-    - name: Run birthday reminder script
       # 步骤名称：运行生日提醒脚本
-      run: python pushplus/birthday_notice.py
+    - name: Run birthday reminder script
       # 运行指定的Python脚本来执行生日提醒逻辑
+      run: python pushplus/birthday_notice.py
