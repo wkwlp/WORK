@@ -35,8 +35,8 @@ jobs:
         # 升级pip到最新版本
         pip install requests
         # 安装requests库
-        pip install lunar-calendar # 假设lunardate包在此名称下发布或使用正确的包名
-        # 安装lunar-calendar库（假设该库名正确）
+        pip install lunardate # 假设lunardate包在此名称下发布或使用正确的包名
+        # 安装lunardate库（假设该库名正确）
 
     - name: Run birthday reminder script
       # 步骤名称：运行生日提醒脚本
