@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timedelta
 from lunardate import LunarDate
-
+import os
 
 def get_lunar_date():
     """
@@ -25,8 +25,8 @@ def send_reminder_email(birthdays_soon):
     :param birthdays_soon: list of tuples, 包含名字、日期、阳历日期和天数的元组列表 [(名字, 日期, 阳历日期, 天数), ...]
     :return: None
     """
-    # 设置PushPlus的服务Token
-    token = "30db2b55c89c450cb5377d35cc8b098b"
+    # 从环境变量中获取PushPlus的服务Token
+    token = os.environ.get('PUSHPLUS_TOKEN')
     # 设置PushPlus API的URL
     url = "http://www.pushplus.plus/send"
 
