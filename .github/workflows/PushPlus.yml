@@ -3,8 +3,8 @@ name: PushPlus Birthday Notice
 on:
   schedule:
     # 触发器设置，基于定时任务触发
-    - cron: '0 2 9 * *'
-      # cron表达式，表示在北京时间每天上午10点（UTC时间2点）触发此工作流
+    - cron: '10 4 * * *'
+      # cron表达式，表示在北京时间每天中午12点10分（UTC时间4点10分）触发此工作流
   # 允许手动触发工作流
   workflow_dispatch:
 
