@@ -27,6 +27,10 @@ def send_reminder_email(birthdays_soon):
     """
     # 从环境变量中获取PushPlus的服务Token
     token = os.environ.get('PUSHPLUS_TOKEN')
+
+    # 设置本机环境系统变量，cmd
+    # setx PUSHPLUS_TOKEN "token"
+
     # 设置PushPlus API的URL
     url = "http://www.pushplus.plus/send"
 
@@ -66,7 +70,7 @@ def get_birthday():
         ("妈妈农历生日", "11月16日"),
         ("爸爸农历生日", "1月27日"),
         ("老婆阳历生日", "9月29日"),
-        ("弟弟农历生日", "9月14日"),
+        ("弟弟农历生日", "9月15日"),
         ('和老婆在一起的纪念日','11月14日')
     ]
     return birthdays

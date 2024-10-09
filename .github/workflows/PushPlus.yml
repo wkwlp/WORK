@@ -41,6 +41,9 @@ jobs:
         pip install requests
         # 安装lunardate库
         pip install lunardate
+        # 安装os库
+        pip install os
+        
 
     - name: Run event reminder script
       # 设置环境变量，并运行事件提醒脚本
