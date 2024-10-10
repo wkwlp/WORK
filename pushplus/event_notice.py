@@ -18,6 +18,23 @@ def get_lunar_date():
     return lunar_date_str
 
 
+def get_birthday():
+    """
+    返回所有需要检查的日期信息。
+
+    :return: list of tuples, 包含名字和日期的元组列表 [(名字, 日期), ...]
+    """
+    # 定义一个列表来存储不同的事件及其对应的日期
+    birthdays = [
+        ("妈妈农历生日", "11月16日"),
+        ("爸爸农历生日", "1月27日"),
+        ("老婆阳历生日", "9月29日"),
+        ("弟弟农历生日", "9月14日"),
+        ('和老婆在一起的纪念日','11月14日'),
+        ('外婆农历生日', '7月24日')
+    ]
+    return birthdays
+
 def send_reminder_email(birthdays_soon):
     """
     通过PushPlus服务发送邮件提醒。
@@ -25,11 +42,10 @@ def send_reminder_email(birthdays_soon):
     :param birthdays_soon: list of tuples, 包含名字、日期、阳历日期和天数的元组列表 [(名字, 日期, 阳历日期, 天数), ...]
     :return: None
     """
-    # 从环境变量中获取PushPlus的服务Token
-    token = os.environ.get('PUSHPLUS_TOKEN')
-
     # 设置本机环境系统变量，cmd
     # setx PUSHPLUS_TOKEN "token"
+    # 从环境变量中获取PushPlus的服务Token
+    token = os.environ.get('PUSHPLUS_TOKEN')
 
     # 设置PushPlus API的URL
     url = "http://www.pushplus.plus/send"
@@ -57,23 +73,6 @@ def send_reminder_email(birthdays_soon):
         print("邮件提醒发送成功")
     else:  # 如果状态码不是200，则请求失败
         print(f"邮件提醒发送失败，状态码：{response.status_code}")
-
-
-def get_birthday():
-    """
-    返回所有需要检查的日期信息。
-
-    :return: list of tuples, 包含名字和日期的元组列表 [(名字, 日期), ...]
-    """
-    # 定义一个列表来存储不同的事件及其对应的日期
-    birthdays = [
-        ("妈妈农历生日", "11月16日"),
-        ("爸爸农历生日", "1月27日"),
-        ("老婆阳历生日", "9月29日"),
-        ("弟弟农历生日", "9月14日"),
-        ('和老婆在一起的纪念日','11月14日')
-    ]
-    return birthdays
 
 
 def check_and_send_reminder():
