@@ -29,12 +29,11 @@ def get_birthday():
         ("妈妈农历生日", "11月16日"),
         ("爸爸农历生日", "1月27日"),
         ("老婆阳历生日", "9月29日"),
-        ("弟弟农历生日", "9月16日"),
         ('和老婆在一起的纪念日', '11月14日'),
         ('外婆农历生日', '7月24日'),
         ('我的阳历生日', '10月15日'),
         ('我的农历生日', '8月29日'),
-        ('重点：记得下次发朋友圈带上那张图', '10月16日')
+        ('重要：记得下次发朋友圈带上那张图', '10月15日')
 
     ]
     return birthdays
@@ -56,7 +55,8 @@ def send_reminder_email(birthdays_soon):
 
     # 构建邮件内容
     content = "未来七天有以下日子需要注意：" + "\n".join(
-        [f"{name}: {date}（阳历日期：{solar_date.strftime('%Y-%m-%d')}，还有{days}天）" for name, date, solar_date, days in birthdays_soon])
+        [f"{name}: {date}（阳历日期：{solar_date.strftime('%Y-%m-%d')}，距离{days}天）"
+         for name, date, solar_date, days in birthdays_soon])
 
     # 构建发送邮件所需的数据字典
     data = {
@@ -118,7 +118,7 @@ def check_and_send_reminder():
         days_until_birthday = (birthday_date - today).days + 1
 
         # 如果事件在未来七天内
-        if 0 <= days_until_birthday <= 7:
+        if 0 <= days_until_birthday <= 7 or '重要' in name:
             birthdays_soon.append((name, date, solar_date, days_until_birthday))
 
     # 如果有未来七天内的事件，则发送邮件提醒
