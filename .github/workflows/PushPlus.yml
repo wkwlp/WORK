@@ -54,4 +54,4 @@ jobs:
       # 运行指定的Python脚本来执行事件提醒逻辑
       run: |
         # 执行事件提醒脚本
-        python pushplus/event_notice.py
+        python pushplus/Event/event_notice.py

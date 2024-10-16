@@ -1,43 +1,41 @@
 import requests
-from datetime import datetime, timedelta
 
 def get_weather(amap_key):
     '''
-    获取指定城市的天气信息
 
-    :param amap_key: 高德地图API密钥
-    :return: None
+    :param amap_key:
+    :return:
     '''
-
-    # 获取昨天的日期
-    yesterday = datetime.now() - timedelta(days=1)
-    date_str = yesterday.strftime('%Y%m%d')
-
     # 构造请求 URL
-    base_url = "https://restapi.amap.com/v3/weather/history"
-    city = "南宁市"  # 目标城市名称
+    base_url = "https://restapi.amap.com/v3/weather/weatherInfo"
+    city = "450103"  # 南宁市青秀区
+    # base实时天气，all预报天气
+    extensions = 'all'
+
+    # 返回格式：可选值：JSON,XML
+    output = 'json'
 
     # 完整的请求 URL 包括 API 密钥和其他参数
-    complete_url = f"{base_url}?city={city}&date={date_str}&key={amap_key}"
+    complete_url = f"{base_url}?city={city}&key={amap_key}&{extensions}&{output}"
     print(complete_url)
     # 发送 GET 请求并获取响应
     response = requests.get(complete_url)
 
     # 将 JSON 响应转换为 Python 字典
     data = response.json()
+    print(data)
 
     if response.status_code == 200:
         # 检查请求是否成功
         if data.get('status') == '1':
-            # 尝试获取历史天气信息
+            # 尝试获取实时天气信息
             try:
-                history_weather = data['history'][0]
-                print(f"昨天的历史天气信息:")
-                print(f"日期: {yesterday.strftime('%Y-%m-%d')}")
-                print(f"天气状况: {history_weather['weather']}")
-                print(f"平均气温: {history_weather['avgTemp']}°C")
+                live_weather = data['lives'][0]
+                print(f"实时天气信息:")
+                print(f"温度: {live_weather['temperature']}°C")
+                print(f"风力等级: {live_weather['windpower']}")
             except KeyError:
-                print("没有找到昨天的历史天气信息。")
+                    print("没有找到实时天气信息。")
         else:
             # 如果请求失败，打印错误信息
             print("请求 API 失败:", data.get('infocode'), data.get('info'))
