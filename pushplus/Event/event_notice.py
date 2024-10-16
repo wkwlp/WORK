@@ -54,7 +54,7 @@ def send_reminder_email(birthdays_soon):
     url = "http://www.pushplus.plus/send"
 
     # 构建邮件内容
-    content = "未来七天有以下日子需要注意：" + "\n".join(
+    content = "未来有以下日子需要注意：" + "\n".join(
         [f"{name}: {date}（阳历日期：{solar_date.strftime('%Y-%m-%d')}，距离{days}天）"
          for name, date, solar_date, days in birthdays_soon])
 
