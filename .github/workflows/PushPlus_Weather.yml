@@ -1,0 +1,55 @@
+# 定义工作流程的名字
+name: PushPlus Weather Reminder
+
+# 规定工作流程何时触发
+on:
+  # 定时任务触发器，基于cron表达式
+  schedule:
+    # 格式：分钟 小时 日期 月份 星期几
+    # 每天北京时间晚上21点（UTC时间13点）触发此工作流
+    - cron: '00 13 * * *'
+  # 允许手动触发工作流
+  workflow_dispatch:
+
+# 定义一个任务
+jobs:
+  # 任务名称为build
+  build:
+    # 指定此任务将在哪个操作系统上运行，这里选择了最新的Ubuntu镜像
+    runs-on: ubuntu-latest
+
+    # 任务包含的具体步骤
+    steps:
+      # 第一步：检出代码
+      - name: Checkout Repository
+        # 使用GitHub Actions提供的action来检出代码到工作区
+        uses: actions/checkout@v3
+
+      # 第二步：设置Python环境
+      - name: Setup Python Environment
+        # 使用GitHub Actions提供的setup-python action来安装Python环境
+        uses: actions/setup-python@v4
+        with:
+          # 使用最新的Python 3版本
+          python-version: '3.x'
+
+      # 第三步：安装Python依赖
+      - name: Install Python Dependencies
+        # 安装脚本所需的Python依赖包
+        run: |
+          # 升级pip到最新版本
+          python -m pip install --upgrade pip
+          # 安装requests库
+          pip install requests
+
+      # 第四步：运行天气提醒脚本
+      - name: Execute Weather Reminder Script
+        # 设置环境变量，并运行事件提醒脚本
+        env:
+          # 引用存储在仓库中的密钥作为环境变量
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          AMAP_KEY: ${{ secrets.AMAP_KEY }}
+        # 运行指定的Python脚本来执行事件提醒逻辑
+        run: |
+          # 执行事件提醒脚本
+          python pushplus/Weather/Weather.py
