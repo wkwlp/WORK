@@ -1,7 +1,44 @@
 import requests
 import os
 import random
-from pushplus.Weather.Weather import send_reminder_email
+
+
+def send_reminder_email(title,content):
+    """
+    通过PushPlus服务发送邮件提醒。
+
+    :param content:
+    :return: None
+    """
+    # 设置本机环境系统变量，cmd
+    # setx PUSHPLUS_TOKEN "token"
+    # 从环境变量中获取PushPlus的服务Token
+    token = os.environ.get('PUSHPLUS_TOKEN')
+
+    # 设置PushPlus API的URL
+    url = "http://www.pushplus.plus/send"
+
+
+    # 构建发送邮件所需的数据字典
+    data = {
+        "token": token,  # 推送使用的Token
+        "title": title,  # 邮件标题
+        "content": content,  # 邮件内容
+        "topic": "wkwlp",  # 群组编码
+        "template": "txt",  # 使用的邮件模板，此处使用纯文本格式
+        "channel": "mail"  # 指定推送方式为邮件
+    }
+
+    # 设置请求头，告知服务器我们将发送JSON格式的数据
+    headers = {'Content-Type': 'application/json'}
+    # 使用POST方法发送数据，并获取响应对象
+    response = requests.post(url, json=data, headers=headers)
+
+    # 判断请求是否成功
+    if response.status_code == 200:  # 如果状态码是200，则请求成功
+        print("邮件提醒发送成功")
+    else:  # 如果状态码不是200，则请求失败
+        print(f"邮件提醒发送失败，状态码：{response.status_code}")
 
 
 def get_random_love_quote(TIAN_KEY):
