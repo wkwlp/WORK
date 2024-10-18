@@ -275,7 +275,7 @@ def get_weather_advice(weather_condition):
     }
     return advices.get(weather_condition, '明日天气温馨提示：亲爱的老婆，高德地图返回的内容不在代码范围内！')
 
-def send_reminder_email(content):
+def send_reminder_email(title,content):
     """
     通过PushPlus服务发送邮件提醒。
 
@@ -294,7 +294,7 @@ def send_reminder_email(content):
     # 构建发送邮件所需的数据字典
     data = {
         "token": token,  # 推送使用的Token
-        "title": "天气提醒",  # 邮件标题
+        "title": title,  # 邮件标题
         "content": content,  # 邮件内容
         "topic": "wkwlp",  # 群组编码
         "template": "txt",  # 使用的邮件模板，此处使用纯文本格式
@@ -331,7 +331,7 @@ if __name__ == "__main__":
     # 将实时天气和预报天气信息拼接起来
     weather = f'{realtime_weather}{forecast_weather}{weather_condition}'
 
-    send_reminder_email(weather)
+    send_reminder_email('天气提醒',weather)
     # # 最终只打印一次拼接后的结果
     # print(weather)
 
