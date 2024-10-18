@@ -47,15 +47,19 @@ jobs:
           python -m pip install --upgrade pip
           # 安装requests库
           pip install requests
+          # 从git仓库安装pushplus模块
+          git clone https://github.com/wkwlp/WORK.git /tmp/pushplus_repo
+          cd /tmp/pushplus_repo
+          pip install .
+          cd -
 
       # 第四步：运行情话提醒脚本
       - name: Execute saylove Reminder Script
-        # 设置环境变量，并运行事件提醒脚本
+        working-directory: Saylove
         env:
           # 引用存储在仓库中的密钥作为环境变量
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           TIAN_KEY: ${{ secrets.TIAN_KEY }}
         # 运行指定的Python脚本来执行事件提醒逻辑
         run: |
-          # 执行事件提醒脚本
-          python pushplus/Saylove/saylove.py
+          python saylove.py
