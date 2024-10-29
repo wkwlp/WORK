@@ -96,7 +96,7 @@ class EmailNotifier:
             raise ValueError("PUSHPLUS_TOKEN 环境变量必须设置。")
         self.url = "http://www.pushplus.plus/send"
 
-    def send_reminder(self, event_days_soon):
+    def send_reminder(self, title,event_days_soon):
         """
         通过PushPlus服务发送邮件提醒。
 
@@ -110,7 +110,7 @@ class EmailNotifier:
         # 构建发送邮件所需的数据字典
         data = {
             "token": self.token,    # 推送使用的Token
-            "title": "重要日期提醒",  # 邮件标题
+            "title": title,  # 邮件标题
             "content": content,    # 邮件内容
             # "topic": "wkwlp",  # 群组编码
             "template": "txt",  # 使用的邮件模板，此处使用纯文本格式
@@ -132,7 +132,7 @@ class EmailNotifier:
             print(f"邮件发送时发生错误：{e}")
 
 
-def check_and_send_reminder():
+def main():
     """
     检查所有预设的事件日期，并在检测到未来七天内有事件发生时发送提醒邮件。
     """
@@ -159,7 +159,7 @@ def check_and_send_reminder():
         # 如果有未来七天内的事件，则发送邮件提醒
         if event_days_soon:
             print("正在发送邮件提醒...")
-            email_notifier.send_reminder(event_days_soon)
+            email_notifier.send_reminder('重要日期提醒', event_days_soon)
         else:
             print('未来七天内未有事件')
     except Exception as e:
@@ -169,4 +169,4 @@ def check_and_send_reminder():
 # 主函数入口
 if __name__ == "__main__":
     # 检查并发送事件提醒
-    check_and_send_reminder()
+    main()

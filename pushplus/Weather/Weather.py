@@ -274,7 +274,7 @@ class WeatherReminderSender:
             "token": self.pushplus_token,  # 推送使用的Token
             "title": title,  # 邮件标题
             "content": content,  # 邮件内容
-            # "topic": "wkwlp",  # 群组编码
+            "topic": "wkwlp",  # 群组编码
             "template": "txt",  # 使用的邮件模板，此处使用纯文本格式
             "channel": "mail"  # 指定推送方式为邮件
         }
