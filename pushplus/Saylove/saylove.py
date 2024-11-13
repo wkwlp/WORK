@@ -21,7 +21,7 @@ class LoveQuoteFetcher:
         """
         self.api_key = os.environ.get('TIAN_KEY')
         if not self.api_key:
-            raise ValueError("TIAN_KEY 环境变量必须设置。")
+            raise ValueError("TIAN_KEY 环境变量未设置。")
         self.quote_urls = [
             f'https://apis.tianapi.com/saylove/index?key={self.api_key}',
             f'https://apis.tianapi.com/caihongpi/index?key={self.api_key}'
