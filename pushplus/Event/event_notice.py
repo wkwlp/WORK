@@ -2,7 +2,14 @@ import requests
 from datetime import datetime, timedelta
 from lunardate import LunarDate
 import os
+import logging
+from threading import current_thread
 
+# 配置日志记录
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - [%(threadName)s] %(name)s.%(funcName)s:%(lineno)d - %(message)s'
+)
 
 class DateHandler:
     """
@@ -11,13 +18,14 @@ class DateHandler:
     属性:
         today (datetime.datetime): 当前日期。
     """
+    logger = logging.getLogger(__name__)
 
     def __init__(self):
         """
         初始化日期处理器，设置今天日期。
         """
         self.today = datetime.today()
-
+        self.logger.info("DateHandler 初始化完成，当前日期: %s", self.today)
 
     def get_lunar_date(self):
         """
@@ -28,7 +36,9 @@ class DateHandler:
         # 将今天的阳历日期转换为农历日期
         lunar_date = LunarDate.fromSolarDate(self.today.year, self.today.month, self.today.day)
         # 格式化农历日期为 'x月x日' 格式
-        return f"{lunar_date.month}月{lunar_date.day}日"
+        formatted_lunar_date = f"{lunar_date.month}月{lunar_date.day}日"
+        self.logger.info("获取到今天的农历日期: %s", formatted_lunar_date)
+        return formatted_lunar_date
 
     def get_event_days(self):
         """
@@ -46,6 +56,7 @@ class DateHandler:
             ('我的阳历生日', '10月15日'),
             ('我的农历生日', '8月29日')
         ]
+        self.logger.info("获取到所有需要检查的事件信息: %s", event_days)
         return event_days
 
     def calculate_days_until_event(self, name, date):
@@ -72,6 +83,7 @@ class DateHandler:
 
         # 计算距离事件还有多少天
         days_until = (event_datetime - self.today).days + 1
+        self.logger.info("计算得到 %s 距离今天的天数: %d", name, days_until)
         return name, date, event_datetime, days_until
 
 
@@ -79,6 +91,7 @@ class CalendarAPI:
     """
     用于调用日历API的类，提供获取指定日期的日历详情功能。
     """
+    logger = logging.getLogger(__name__)
 
     def __init__(self):
         """
@@ -90,6 +103,7 @@ class CalendarAPI:
         self.api_key = os.environ.get('CalendarAPI_KEY')
         if not self.api_key:
             raise ValueError("CalendarAPI_KEY 环境变量未设置。")
+        self.logger.info("CalendarAPI 初始化完成，API Key: %s, API URL: %s", self.api_key, self.api_url)
 
     @staticmethod
     def format_date(date):
@@ -113,8 +127,7 @@ class CalendarAPI:
         if date is None:
             # 如果没有提供日期，则使用明天的日期
             date_tomorrow = datetime.today() + timedelta(days=1)
-
-            # 格式化日期
+            self.logger.info("使用明天的日期: %s", date_tomorrow)
             date = self.format_date(date_tomorrow)
 
         # 构造请求参数
@@ -122,14 +135,16 @@ class CalendarAPI:
             'key': self.api_key,
             'date': date,
         }
+        self.logger.info("构造请求参数: %s", request_params)
 
         try:
             # 发送GET请求
             response = requests.get(self.api_url, params=request_params)
             response.raise_for_status()  # 检查请求是否成功
+            self.logger.info("收到响应，状态码: %d", response.status_code)
         except requests.RequestException as e:
             # 处理请求异常
-            print(f"请求失败: {e}")
+            self.logger.error(f"请求失败: {e}", exc_info=True)
             return {'error': str(e)}
 
         data = response.json()
@@ -138,9 +153,10 @@ class CalendarAPI:
         holiday = result.get('holiday')
         date = result.get('date')
 
-
         # 解析并返回响应结果
+        self.logger.info("获取到的日历信息: %s, 节日: %s", date, holiday)
         return date, holiday
+
 
 class EmailNotifier:
     """
@@ -150,6 +166,7 @@ class EmailNotifier:
         token (str): 用于访问PushPlus服务的Token。
         url (str): PushPlus API的URL。
     """
+    logger = logging.getLogger(__name__)
 
     def __init__(self):
         """
@@ -162,8 +179,9 @@ class EmailNotifier:
         if not self.token:
             raise ValueError("PUSHPLUS_TOKEN 环境变量未设置。")
         self.url = "http://www.pushplus.plus/send"
+        self.logger.info("EmailNotifier 初始化完成，Token: %s, URL: %s", self.token, self.url)
 
-    def send_reminder(self, title,event_days_soon):
+    def send_reminder(self, title, event_days_soon):
         """
         通过PushPlus服务发送邮件提醒。
 
@@ -173,32 +191,35 @@ class EmailNotifier:
         content = "未来有以下日子需要注意：" + "\n".join(
             [f"{name}: {date}（阳历日期：{solar_date.strftime('%Y-%m-%d')}，距离{days}天）"
              for name, date, solar_date, days in event_days_soon])
+        self.logger.info("构建的邮件内容: %s", content)
 
         # 构建发送邮件所需的数据字典
         data = {
             "token": self.token,    # 推送使用的Token
-            "title": title,  # 邮件标题
-            "content": content,    # 邮件内容
-            # "topic": "wkwlp",  # 群组编码
-            "template": "txt",  # 使用的邮件模板，此处使用纯文本格式
-            "channel": "mail"   # 指定推送方式为邮件
+            "title": title,         # 邮件标题
+            "content": content,     # 邮件内容
+            "template": "txt",      # 使用的邮件模板，此处使用纯文本格式
+            "channel": "mail"       # 指定推送方式为邮件
         }
+        self.logger.info("构建的邮件数据: %s", data)
 
         # 设置请求头，告知服务器我们将发送JSON格式的数据
         headers = {'Content-Type': 'application/json'}
+        self.logger.info("设置请求头: %s", headers)
 
         # 使用POST方法发送数据，并获取响应对象
         try:
             response = requests.post(self.url, json=data, headers=headers)
             # 判断请求是否成功
+            self.logger.info("收到响应，状态码: %d", response.status_code)
             if response.status_code == 200:
-                print("邮件提醒发送成功")
+                self.logger.info("邮件提醒发送成功")
             else:
-                print(f"邮件提醒发送失败，状态码：{response.status_code}")
+                self.logger.error(f"邮件提醒发送失败，状态码：{response.status_code}")
         except Exception as e:
-            print(f"邮件发送时发生错误：{e}")
+            self.logger.error(f"邮件发送时发生错误：{e}", exc_info=True)
 
-    def send_data(self, title,data):
+    def send_data(self, title, data):
         """
         通过PushPlus服务发送邮件提醒。
 
@@ -206,53 +227,56 @@ class EmailNotifier:
         """
         # 构建邮件内容
         content = data
+        self.logger.info("构建的邮件内容: %s", content)
 
         # 构建发送邮件所需的数据字典
         data = {
             "token": self.token,    # 推送使用的Token
-            "title": title,  # 邮件标题
-            "content": content,    # 邮件内容
-            # "topic": "wkwlp",  # 群组编码
-            "template": "txt",  # 使用的邮件模板，此处使用纯文本格式
-            "channel": "mail"   # 指定推送方式为邮件
+            "title": title,         # 邮件标题
+            "content": content,     # 邮件内容
+            "template": "txt",      # 使用的邮件模板，此处使用纯文本格式
+            "channel": "mail"       # 指定推送方式为邮件
         }
+        self.logger.info("构建的邮件数据: %s", data)
 
         # 设置请求头，告知服务器我们将发送JSON格式的数据
         headers = {'Content-Type': 'application/json'}
+        self.logger.info("设置请求头: %s", headers)
 
         # 使用POST方法发送数据，并获取响应对象
         try:
             response = requests.post(self.url, json=data, headers=headers)
             # 判断请求是否成功
+            self.logger.info("收到响应，状态码: %d", response.status_code)
             if response.status_code == 200:
-                print("邮件提醒发送成功")
+                self.logger.info("邮件提醒发送成功")
             else:
-                print(f"邮件提醒发送失败，状态码：{response.status_code}")
+                self.logger.error(f"邮件提醒发送失败，状态码：{response.status_code}")
         except Exception as e:
-            print(f"邮件发送时发生错误：{e}")
-
-
+            self.logger.error(f"邮件发送时发生错误：{e}", exc_info=True)
 
 
 def main():
     """
     检查所有预设的事件日期，并在检测到未来有事件发生时发送提醒邮件。
     """
+    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
     try:
         date_handler = DateHandler()  # 创建日期处理器实例
         calendarapi = CalendarAPI()  # 创建日历API实例
         email_notifier = EmailNotifier()  # 创建邮件通知器实例
+
         # 获取节气和节日数据
         date, holiday = calendarapi.get_calendar_info()
-        print(f"获取到的数据: {date}：{holiday}")  # 添加调试信息
+        logger.info("获取到的数据: %s：%s", date, holiday)  # 添加调试信息
 
         if holiday:
-            print("正在发送邮件提醒...")
+            logger.info("正在发送节日提醒邮件...")
             # 拼接return值
             str = f'{date}：{holiday}'
             email_notifier.send_data('节日提醒', str)
         else:
-            print("没有节日信息，不会发送邮件提醒")  # 添加调试信息
+            logger.info("没有节日信息，不会发送邮件提醒")  # 添加调试信息
 
         # 获取所有需要检查的事件信息
         event_days = date_handler.get_event_days()
@@ -268,21 +292,19 @@ def main():
             # 如果事件在未来七天内或标记为重要，则添加到列表
             if 0 <= days_until <= 7 or '重要' in name:
                 event_days_soon.append(event_info)
-                print(f"{name} 在未来七天内，剩余天数：{days_until}")
+                logger.info("重要事件提醒：%s 在未来七天内，剩余天数：%d", name, days_until)
 
         # 如果有未来七天内的事件，则发送邮件提醒
         if event_days_soon:
-            print("正在发送邮件提醒...")
+            logger.info("正在发送重要日期提醒邮件...")
             email_notifier.send_reminder('重要日期提醒', event_days_soon)
         else:
-            print('未来七天内未有事件')
+            logger.info('未来七天内未有事件')
     except Exception as e:
-        print(f"检查和发送提醒时发生错误：{e}")
+        logger.error(f"检查和发送提醒时发生错误：{e}", exc_info=True)
 
 
 # 主函数入口
 if __name__ == "__main__":
     # 检查并发送事件提醒
     main()
-
-
