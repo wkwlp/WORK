@@ -1,7 +1,14 @@
 import requests
 import os
 import random
+import logging
+from threading import current_thread
 
+# 配置日志记录
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - [%(threadName)s] %(name)s.%(funcName)s:%(lineno)d - %(message)s'
+)
 
 class LoveQuoteFetcher:
     """
@@ -11,6 +18,7 @@ class LoveQuoteFetcher:
         api_key (str): 用于访问天API的API密钥。
         quote_urls (list): 包含两个URL的列表，分别用于获取情话和彩虹屁。
     """
+    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
@@ -26,6 +34,7 @@ class LoveQuoteFetcher:
             f'https://apis.tianapi.com/saylove/index?key={self.api_key}',
             f'https://apis.tianapi.com/caihongpi/index?key={self.api_key}'
         ]
+        self.logger.info("LoveQuoteFetcher 初始化完成")
 
     def get_random_quote(self):
         """
@@ -35,6 +44,7 @@ class LoveQuoteFetcher:
         """
         # 随机选择一个URL
         selected_url = random.choice(self.quote_urls)
+        self.logger.info(f"选择的URL: {selected_url}")
 
         try:
             # 发送HTTP GET请求
@@ -44,8 +54,7 @@ class LoveQuoteFetcher:
             if response.status_code == 200:
                 # 解析返回的JSON数据
                 quote_data = response.json()
-                # 打印返回的json数据
-                print(quote_data)
+                self.logger.info(f"收到的响应: {quote_data}")
 
                 # 尝试从返回的数据中提取情话内容，提供一个默认值，若无数据则返回空字典{}
                 content = quote_data.get('result', {}).get('content')
@@ -55,11 +64,11 @@ class LoveQuoteFetcher:
                     return f"致亲爱的老婆：{content.strip()}"
 
                 # 如果没有找到content字段，打印提示信息
-                print("返回的数据中没有找到'content'字段")
+                self.logger.warning("返回的数据中没有找到'content'字段")
 
         except Exception as e:
             # 如果发生异常，打印错误信息
-            print(f"发生错误：{e}")
+            self.logger.error(f"发生错误：{e}")
 
         # 请求失败或未找到内容时返回None
         return None
@@ -73,6 +82,7 @@ class EmailNotifier:
         token (str): 用于访问PushPlus服务的Token。
         url (str): PushPlus API的URL。
     """
+    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
@@ -85,6 +95,7 @@ class EmailNotifier:
         if not self.token:
             raise ValueError("PUSHPLUS_TOKEN 环境变量必须设置。")
         self.url = "http://www.pushplus.plus/send"
+        self.logger.info("EmailNotifier 初始化完成")
 
     def send_email(self, title, content):
         """
@@ -98,10 +109,11 @@ class EmailNotifier:
             "token": self.token,  # 推送使用的Token
             "title": title,  # 邮件标题
             "content": content,  # 邮件内容
-            "topic": "wkwlp",  # 群组编码
+            # "topic": "wkwlp",  # 群组编码
             "template": "txt",  # 使用的邮件模板，此处使用纯文本格式
             "channel": "mail"  # 指定推送方式为邮件
         }
+        self.logger.info(f"构建的邮件数据: {data}")
 
         # 设置请求头，告知服务器我们将发送JSON格式的数据
         headers = {'Content-Type': 'application/json'}
@@ -111,9 +123,10 @@ class EmailNotifier:
 
         # 判断请求是否成功
         if response.status_code == 200:  # 如果状态码是200，则请求成功
-            print("邮件提醒发送成功")
+            self.logger.info('邮件提醒发送中~~~')
+            self.logger.info("邮件提醒发送成功")
         else:  # 如果状态码不是200，则请求失败
-            print(f"邮件提醒发送失败，状态码：{response.status_code}")
+            self.logger.error(f"邮件提醒发送失败，状态码：{response.status_code}")
 
 
 def main():
@@ -122,11 +135,20 @@ def main():
 
     :return: 无返回值
     """
+    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
+
     # 创建情话获取器实例
     quote_fetcher = LoveQuoteFetcher()
 
-    # 获取随机情话
+    # 过滤的值列表
+    custom_values = ["嫁你", "嫁给你"]
+
+    # 获取随机情话，并确保不包含自定义的值
     quote = quote_fetcher.get_random_quote()
+    while any(value in quote for value in custom_values):
+        quote = quote_fetcher.get_random_quote()
+
+    logger.info(f"获取的情话: {quote}")
 
     if quote:
         # 创建邮件通知器实例
