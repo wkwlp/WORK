@@ -243,7 +243,7 @@ def main():
         calendarapi = CalendarAPI()  # 创建日历API实例
         email_notifier = EmailNotifier()  # 创建邮件通知器实例
         # 获取节气和节日数据
-        date, holiday = calendarapi.get_calendar_info('2024-11-7')
+        date, holiday = calendarapi.get_calendar_info()
         print(f"获取到的数据: {date}：{holiday}")  # 添加调试信息
 
         if holiday:
