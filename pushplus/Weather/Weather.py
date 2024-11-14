@@ -1,7 +1,13 @@
 import requests
 import os
 from datetime import datetime, timedelta
+import logging
 
+# 配置日志记录
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - [%(threadName)s] %(name)s.%(funcName)s:%(lineno)d - %(message)s'
+)
 
 class WeatherInfoFetcher:
     """
@@ -10,15 +16,17 @@ class WeatherInfoFetcher:
     Attributes:
         amap_key (str): 高德地图API密钥。
     """
+    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
         初始化WeatherInfoFetcher实例，从环境变量中读取高德地图API密钥。
         """
         self.amap_key = os.environ.get('AMAP_KEY')
+        self.logger.info("WeatherInfoFetcher 初始化完成")
 
-    @staticmethod
-    def get_tomorrow_date():
+
+    def get_tomorrow_date(self):
         """
         获取明天的日期，并将其格式化为 'YYYY-MM-DD' 的形式。
 
@@ -31,6 +39,7 @@ class WeatherInfoFetcher:
         tomorrow = today + timedelta(days=1)
         # 使用 strftime 方法将明天的日期格式化为 'YYYY-MM-DD' 的字符串格式
         formatted_tomorrow = tomorrow.strftime('%Y-%m-%d')
+        self.logger.info(f"明天的日期: {formatted_tomorrow}")
         # 返回格式化后的明天的日期
         return formatted_tomorrow
 
@@ -48,6 +57,7 @@ class WeatherInfoFetcher:
         """
         base_url = "https://restapi.amap.com/v3/weather/weatherInfo"
         complete_url = f"{base_url}?city={city}&key={self.amap_key}&extensions={extensions}&output={output}"
+        self.logger.info(f"完整的url: {complete_url}")
         return complete_url
 
     def handle_weather_data(self, data, tomorrow_date):
@@ -63,12 +73,12 @@ class WeatherInfoFetcher:
         """
         # 检查API请求的状态码是否为成功状态
         if data.get('status') != '1':
-            print("请求 API 失败:", data.get('infocode'), data.get('info'))
+            self.logger.error("请求 API 失败:",data.get('infocode'), data.get('info'))
             return None, None
         # 从API响应数据中提取预报数据
         forecasts = data.get('forecasts')
         if not forecasts:
-            print("没有找到天气信息。")
+            self.logger.error("没有找到天气信息。")
             return None, None
         # 从预报数据中提取具体的天气预报列表
         forecast_list = forecasts[0].get('casts', [])
@@ -177,7 +187,7 @@ class WeatherInfoFetcher:
             return weather_forecast, weather_condition
 
         except requests.exceptions.RequestException as e:
-            print(f"请求过程中发生错误: {e}")
+            self.logger.error(f"请求过程中发生错误: {e}")
             return None, None
 
     def fetch_live_weather_info(self):
@@ -193,12 +203,12 @@ class WeatherInfoFetcher:
             response.raise_for_status()
             data = response.json()
             if data.get('status') != '1':
-                print("请求 API 失败:", data.get('infocode'), data.get('info'))
+                self.logger.error("请求 API 失败:", data.get('infocode'), data.get('info'))
                 return None
             # 获取实时天气数据
             lives = data.get('lives')
             if not lives:
-                print("没有找到实时天气信息。")
+                self.logger.error("没有找到实时天气信息。")
                 return None
             # 提取实时天气信息
             live_weather = lives[0]
@@ -207,7 +217,7 @@ class WeatherInfoFetcher:
 
             return weather_live
         except requests.exceptions.RequestException as e:
-            print(f"请求过程中发生错误: {e}")
+            self.logger.error(f"请求过程中发生错误: {e}")
             return None
 
     def get_weather_advice(self, weather_condition):
@@ -253,12 +263,14 @@ class WeatherReminderSender:
     Attributes:
         pushplus_token (str): PushPlus的服务Token。
     """
+    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
         初始化WeatherReminderSender实例，从环境变量中读取PushPlus的服务Token。
         """
         self.pushplus_token = os.environ.get('PUSHPLUS_TOKEN')
+        self.logger.info("WeatherReminderSender 初始化完成")
 
     def send_reminder_email(self, title, content):
         """
@@ -284,15 +296,17 @@ class WeatherReminderSender:
         response = requests.post(url, json=data, headers=headers)
         # 判断请求是否成功
         if response.status_code == 200:
-            print("邮件提醒发送成功")
+            self.logger.info("邮件提醒发送成功")
         else:
-            print(f"邮件提醒发送失败，状态码：{response.status_code}")
+            self.logger.error(f"邮件提醒发送失败，状态码：{response.status_code}")
 
 
 def main():
     """
     主程序入口，用于获取天气信息并发送邮件提醒。
     """
+    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
+
     # 创建天气信息获取器实例
     weather_fetcher = WeatherInfoFetcher()
     # 创建邮件发送器实例
@@ -300,13 +314,18 @@ def main():
 
     # 获取实时天气信息
     realtime_weather = weather_fetcher.fetch_live_weather_info()
+    logger.info(f"实时天气信息：{realtime_weather}")
+
     # 获取预报天气信息
     forecast_weather, weather_condition = weather_fetcher.fetch_weather_info()
+    logger.info(f"预报天气信息：{forecast_weather}，天气状况：{weather_condition}")
     # 获取天气建议
     weather_condition = weather_fetcher.get_weather_advice(weather_condition)
+    logger.info(f"天气状况建议：{weather_condition}")
 
     # 拼接天气信息
     weather = f'{realtime_weather}{forecast_weather}{weather_condition}'
+    logger.info(f"完整天气信息：{weather}")
     # 发送邮件提醒
     email_sender.send_reminder_email('天气提醒', weather)
 
