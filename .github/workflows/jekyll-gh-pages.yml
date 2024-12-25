@@ -1,0 +1,20 @@
+name: Deploy Static Files
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build and Deploy
+        run: |
+          # Your build commands here (if any)
+          cd Other_funny/Merry_Christmas
+          git init
+          git add .
+          git commit -m 'Deploy'
+          git push -f https://${{ secrets.GITHUB_TOKEN }}@github.com/wkwlp/WORK.git main:gh-pages
