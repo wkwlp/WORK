@@ -44,13 +44,14 @@ jobs:
         pip install lunardate
      
 
-    - name: Run event reminder script
+    - name: Run Event reminder script
       # 设置环境变量，并运行事件提醒脚本
       env:
-        # 引用存储在仓库中的密钥作为环境变量
+        # 引用存储在GIT仓库中的密钥作为环境变量
+        # PUSHPLUS_TOKEN为密钥名称，请根据实际情况修改
         PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
         CalendarAPI_KEY: ${{ secrets.CalendarAPI_KEY }}
       # 运行指定的Python脚本来执行事件提醒逻辑
       run: |
         # 执行事件提醒脚本
-        python pushplus/Event/event_notice.py
+        python pushplus/Event_Reminder/Event.py

@@ -22,7 +22,7 @@ class WeatherInfoFetcher:
         """
         初始化WeatherInfoFetcher实例，从环境变量中读取高德地图API密钥。
         """
-        self.amap_key = os.environ.get('AMAP_KEY')
+        self.amap_key = os.environ.get('AMAP_KEY') #环境变量
         self.logger.info("WeatherInfoFetcher 初始化完成")
 
 

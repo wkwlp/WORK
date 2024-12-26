@@ -1,5 +1,5 @@
 # 定义工作流程的名字
-name: PushPlus saylove Reminder
+name: PushPlus Saylove Reminder
 
 # 规定工作流程何时触发
 on:
@@ -43,7 +43,7 @@ jobs:
           pip install requests
 
       # 第四步：运行情话提醒脚本
-      - name: Execute saylove Reminder Script
+      - name: RUN Saylove Reminder Script
         # 设置环境变量，并运行事件提醒脚本
         env:
           # 引用存储在仓库中的密钥作为环境变量
@@ -52,4 +52,4 @@ jobs:
         # 运行指定的Python脚本来执行情话提醒逻辑
         run: |
           # 执行情话提醒脚本
-          python pushplus/Saylove/saylove.py
+          python pushplus/Love_Reminder/Saylove.py

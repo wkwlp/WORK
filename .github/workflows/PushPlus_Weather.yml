@@ -43,7 +43,7 @@ jobs:
           pip install requests
 
       # 第四步：运行天气提醒脚本
-      - name: Execute Weather Reminder Script
+      - name: Run Weather Reminder Script
         # 设置环境变量，并运行事件提醒脚本
         env:
           # 引用存储在仓库中的密钥作为环境变量
@@ -52,4 +52,4 @@ jobs:
         # 运行指定的Python脚本来执行事件提醒逻辑
         run: |
           # 执行事件提醒脚本
-          python pushplus/Weather/Weather.py
+          python pushplus/Weather_Reminder/Weather.py

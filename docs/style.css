@@ -1385,7 +1385,7 @@ ul {
 
 /* 随机化每个雪花的位置、大小和动画时间 */
 .snowflake:nth-child(1n) {
-  left: calc(var(--left, 0%) + var(--offset, 0px));
+  left: 10%;
   animation-duration: calc(var(--duration, 10s) * 1);
 }
 .snowflake:nth-child(2n) {
