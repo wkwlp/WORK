@@ -270,7 +270,7 @@ class WeatherReminderSender:
         初始化WeatherReminderSender实例，从环境变量中读取PushPlus的服务Token。
         """
         self.pushplus_token = os.environ.get('PUSHPLUS_TOKEN')
-        self.logger.info("WeatherReminderSender 初始化完成")
+        self.logger.info("SendEmail 初始化完成")
 
     def send_reminder_email(self, title, content):
         """

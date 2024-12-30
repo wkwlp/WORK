@@ -2,7 +2,7 @@ import requests
 import os
 import random
 import logging
-from threading import current_thread
+from pushplus.common import *
 
 # 配置日志记录
 logging.basicConfig(
@@ -74,61 +74,6 @@ class LoveQuoteFetcher:
         return None
 
 
-class EmailNotifier:
-    """
-    使用PushPlus服务发送邮件通知的类。
-
-    属性:
-        token (str): 用于访问PushPlus服务的Token。
-        url (str): PushPlus API的URL。
-    """
-    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
-
-    def __init__(self):
-        """
-        初始化EmailNotifier实例。
-
-        初始化时会从环境变量中获取PUSHPLUS_TOKEN。如果环境变量未设置，
-        将抛出一个ValueError异常。
-        """
-        self.token = os.environ.get('PUSHPLUS_TOKEN')
-        if not self.token:
-            raise ValueError("PUSHPLUS_TOKEN 环境变量必须设置。")
-        self.url = "http://www.pushplus.plus/send"
-        self.logger.info("EmailNotifier 初始化完成")
-
-    def send_email(self, title, content):
-        """
-        发送带有指定标题和内容的邮件。
-
-        :param title: 邮件标题
-        :param content: 邮件内容
-        """
-        # 构建发送邮件所需的数据字典
-        data = {
-            "token": self.token,  # 推送使用的Token
-            "title": title,  # 邮件标题
-            "content": content,  # 邮件内容
-            "topic": "wkwlp",  # 群组编码
-            "template": "txt",  # 使用的邮件模板，此处使用纯文本格式
-            "channel": "mail"  # 指定推送方式为邮件
-        }
-        self.logger.info(f"构建的邮件数据: {data}")
-
-        # 设置请求头，告知服务器我们将发送JSON格式的数据
-        headers = {'Content-Type': 'application/json'}
-
-        # 使用POST方法发送数据，并获取响应对象
-        response = requests.post(self.url, json=data, headers=headers)
-
-        # 判断请求是否成功
-        if response.status_code == 200:  # 如果状态码是200，则请求成功
-            self.logger.info('邮件提醒发送中~~~')
-            self.logger.info("邮件提醒发送成功")
-        else:  # 如果状态码不是200，则请求失败
-            self.logger.error(f"邮件提醒发送失败，状态码：{response.status_code}")
-
-
 def main():
     """
     主函数，用于执行获取随机情话并发送邮件提醒的流程。
@@ -141,7 +86,7 @@ def main():
     quote_fetcher = LoveQuoteFetcher()
 
     # 过滤的值列表
-    custom_values = ["嫁你", "嫁给你"]
+    custom_values = ["嫁你", "嫁给你","像你"]
 
     # 获取随机情话，并确保不包含自定义的值
     quote = quote_fetcher.get_random_quote()
@@ -152,10 +97,10 @@ def main():
 
     if quote:
         # 创建邮件通知器实例
-        email_notifier = EmailNotifier()
+        email_notifier = SendEmail()
 
         # 发送邮件提醒
-        email_notifier.send_email('每日小情话', quote)
+        email_notifier.send_reminder_email('每日小情话', quote)
 
 
 if __name__ == "__main__":
