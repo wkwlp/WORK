@@ -100,7 +100,7 @@ def main():
         email_notifier = SendEmail()
 
         # 发送邮件提醒
-        email_notifier.send_reminder_email('每日小情话', quote)
+        email_notifier.send_reminder_email('每日小情话', quote,is_group_send=False)
 
 
 if __name__ == "__main__":
