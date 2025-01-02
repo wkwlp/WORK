@@ -284,7 +284,7 @@ def main():
     weather = f'{realtime_weather}{forecast_weather}{weather_condition}'
     logger.info(f"完整天气信息：{weather}")
     # 发送邮件提醒
-    email_sender.send_reminder_email('天气提醒', weather, is_group_send=False)
+    email_sender.send_reminder_email('天气提醒', weather, is_group_send=True)
 
 
 if __name__ == "__main__":
