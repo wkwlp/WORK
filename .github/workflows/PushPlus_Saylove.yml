@@ -42,11 +42,15 @@ jobs:
           # 安装所有依赖项，假设依赖项在项目的根目录下的requirements.txt中列出
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
+          else
+            # 如果没有 requirements.txt 文件，则提示用户并停止
+            echo "Error: 未找到 requirements.txt 文件"
+            exit 1
           fi
-          # 如果没有requirements.txt，可以单独安装requests库
-          pip install requests
+#          # 如果没有requirements.txt，可以单独安装requests库
+#          pip install requests
 
-      # 新增第四步：设置PYTHONPATH环境变量
+      # 第四步：设置PYTHONPATH环境变量
       - name: Set up PYTHONPATH
         # 确保项目根目录在PYTHONPATH中，以便能够找到pushplus包
         run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV

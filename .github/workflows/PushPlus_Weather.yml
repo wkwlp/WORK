@@ -39,16 +39,27 @@ jobs:
         run: |
           # 升级pip到最新版本
           python -m pip install --upgrade pip
-          # 安装requests库
-          pip install requests
+          # 安装所有依赖项，假设依赖项在项目的根目录下的requirements.txt中列出
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            # 如果没有 requirements.txt 文件，则提示用户并停止
+            echo "Error: 未找到 requirements.txt 文件"
+            exit 1
+          fi
+      # 第四步：设置PYTHONPATH环境变量
+      - name: Set up PYTHONPATH
+        # 确保项目根目录在PYTHONPATH中，以便能够找到pushplus包
+        run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
 
-      # 第四步：运行天气提醒脚本
+      # 第五步：运行天气提醒脚本
       - name: Run Weather Reminder Script
         # 设置环境变量，并运行事件提醒脚本
         env:
           # 引用存储在仓库中的密钥作为环境变量
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           AMAP_KEY: ${{ secrets.AMAP_KEY }}
+          PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
         # 运行指定的Python脚本来执行事件提醒逻辑
         run: |
           # 执行事件提醒脚本
