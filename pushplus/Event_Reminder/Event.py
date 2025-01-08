@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from lunardate import LunarDate
 import os
 import logging
-from threading import current_thread
+from pushplus.common import *
 
 # 配置日志记录
 logging.basicConfig(
@@ -103,7 +103,7 @@ class CalendarAPI:
         self.api_key = os.environ.get('CalendarAPI_KEY')
         if not self.api_key:
             raise ValueError("CalendarAPI_KEY 环境变量未设置。")
-        self.logger.info("CalendarAPI 初始化完成，API Key: %s, API URL: %s", self.api_key, self.api_url)
+        self.logger.info("CalendarAPI 初始化完成")
 
     @staticmethod
     def format_date(date):
@@ -135,7 +135,7 @@ class CalendarAPI:
             'key': self.api_key,
             'date': date,
         }
-        self.logger.info("构造请求参数: %s", request_params)
+        self.logger.info("构造请求参数")
 
         try:
             # 发送GET请求
@@ -179,7 +179,7 @@ class EmailNotifier:
         if not self.token:
             raise ValueError("PUSHPLUS_TOKEN 环境变量未设置。")
         self.url = "http://www.pushplus.plus/send"
-        self.logger.info("EmailNotifier 初始化完成，Token: %s, URL: %s", self.token, self.url)
+        self.logger.info("EmailNotifier 初始化完成")
 
     def send_reminder(self, title, event_days_soon):
         """
@@ -265,7 +265,7 @@ def main():
         date_handler = DateHandler()  # 创建日期处理器实例
         calendarapi = CalendarAPI()  # 创建日历API实例
         email_notifier = EmailNotifier()  # 创建邮件通知器实例
-
+        email_notifier_2 = SendEmail()
         # 获取节气和节日数据
         date, holiday = calendarapi.get_calendar_info()
         logger.info("获取到的数据: %s：%s", date, holiday)  # 添加调试信息
@@ -297,7 +297,7 @@ def main():
         # 如果有未来七天内的事件，则发送邮件提醒
         if event_days_soon:
             logger.info("正在发送重要日期提醒邮件...")
-            email_notifier.send_reminder('重要日期提醒', event_days_soon)
+            email_notifier_2.send_reminder_email('重要日期提醒', event_days_soon,is_group_send=False)
         else:
             logger.info('未来七天内未有事件')
     except Exception as e:
