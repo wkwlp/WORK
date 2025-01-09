@@ -1,5 +1,5 @@
 # 定义工作流程的名字
-name: Combined PushPlus Reminders
+name: PushPlus
 
 # 规定工作流程何时触发
 on:
@@ -48,7 +48,7 @@ jobs:
 
       # 第五步：根据触发时间选择性地运行相应的脚本
       - name: Run Saylove Reminder Script
-        if: github.event.schedule == '40 16 * * *'
+        if: github.event_name == 'schedule' && github.event.schedule == '40 16 * * *' || github.event_name == 'workflow_dispatch'
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           TIAN_KEY: ${{ secrets.TIAN_KEY }}
@@ -57,7 +57,7 @@ jobs:
           python pushplus/Love_Reminder/Saylove.py
 
       - name: Run Event Reminder Script
-        if: github.event.schedule == '00 03 * * *'
+        if: github.event_name == 'schedule' && github.event.schedule == '00 03 * * *' || github.event_name == 'workflow_dispatch'
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           CalendarAPI_KEY: ${{ secrets.CalendarAPI_KEY }}
@@ -66,7 +66,7 @@ jobs:
           python pushplus/Event_Reminder/Event.py
 
       - name: Run Weather Reminder Script
-        if: github.event.schedule == '00 13 * * *'
+        if: github.event_name == 'schedule' && github.event.schedule == '00 13 * * *' || github.event_name == 'workflow_dispatch'
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           AMAP_KEY: ${{ secrets.AMAP_KEY }}
