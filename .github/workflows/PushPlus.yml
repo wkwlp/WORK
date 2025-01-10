@@ -6,7 +6,7 @@ on:
   # 定时任务触发器，基于cron表达式
   schedule:
     # 北京时间早上8点40分对应的UTC时间为前一天的16点40分 触发此工作流
-    - cron: '40 16 * * *'  # Saylove Reminder (调整为UTC时间)
+    - cron: '40 0 * * *'  # Saylove Reminder (调整为UTC时间)
     # 每天北京时间中午11点（UTC时间早上3点）触发此工作流
     - cron: '00 03 * * *'  # Event Reminder
     # 每天北京时间晚上21点（UTC时间13点）触发此工作流
@@ -48,7 +48,7 @@ jobs:
 
       # 第五步：根据触发时间选择性地运行相应的脚本
       - name: Run Saylove Reminder Script
-        if: github.event_name == 'schedule' && github.event.schedule == '40 16 * * *' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'schedule' && github.event.schedule == '40 0 * * *' || github.event_name == 'workflow_dispatch'
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           TIAN_KEY: ${{ secrets.TIAN_KEY }}
