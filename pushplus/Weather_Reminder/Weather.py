@@ -58,7 +58,7 @@ class WeatherInfoFetcher:
         """
         base_url = "https://restapi.amap.com/v3/weather/weatherInfo"
         complete_url = f"{base_url}?city={city}&key={self.amap_key}&extensions={extensions}&output={output}"
-        self.logger.info(f"完整的url: {complete_url}")
+        self.logger.info(f"完整的url: {complete_url.replace(self.amap_key, '[SENSITIVE_DATA]', 1)}")
         return complete_url
 
     def handle_weather_data(self, data, tomorrow_date):

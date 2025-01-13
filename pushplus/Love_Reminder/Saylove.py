@@ -44,7 +44,8 @@ class LoveQuoteFetcher:
         """
         # 随机选择一个URL
         selected_url = random.choice(self.quote_urls)
-        self.logger.info(f"选择的URL: {selected_url}")
+
+        self.logger.info(f"选择的URL: {selected_url.replace(self.api_key, '[SENSITIVE_DATA]', 1)}")
 
         try:
             # 发送HTTP GET请求
