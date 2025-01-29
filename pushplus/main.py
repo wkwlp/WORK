@@ -1,6 +1,6 @@
-from .controller import LoveQuoterController
-from .utils import SendEmail
-from .logger_config import setup_logger  # 从 pushplus 目录导入 setup_logger
+from pushplus.controller import LoveQuoterController
+from pushplus.utils import SendEmail
+from pushplus.logger_config import setup_logger  # 从 pushplus 目录导入 setup_logger
 import argparse
 
 
