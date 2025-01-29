@@ -54,7 +54,7 @@ jobs:
           TIAN_KEY: ${{ secrets.TIAN_KEY }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
         run: |
-          python pushplus/main.py
+          python pushplus/main.py love_quote 
 
       - name: Run Event Reminder Script
         if: github.event_name == 'schedule' && github.event.schedule == '00 03 * * *' || github.event_name == 'workflow_dispatch'
