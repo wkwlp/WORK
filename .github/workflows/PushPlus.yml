@@ -60,7 +60,7 @@ jobs:
         if: github.event_name == 'schedule' && github.event.schedule == '00 03 * * *' || github.event_name == 'workflow_dispatch'
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
-          CalendarAPI_KEY: ${{ secrets.CalendarKEY }}
+          CalendarAPI_KEY: ${{ secrets.CALENDARKEY }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
         run: |
           python pushplus/main.py event 
