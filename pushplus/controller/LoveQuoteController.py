@@ -1,14 +1,14 @@
-import logging
+from pushplus.logger_config import setup_logger
 from pushplus.service import *
-
-class LoveQuoterController:
+from pushplus.config import *
+class LoveQuoteController:
     """
     负责业务逻辑判断并决定是否发送邮件的控制器类。
 
     该类接收情话内容，检查是否存在需要过滤的字段，并决定是否准备发送邮件。
     如果情话为None或包含过滤字段，则进行相应处理。
     """
-    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
+    logger = setup_logger()  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
@@ -17,11 +17,13 @@ class LoveQuoterController:
         在初始化时，调用Service层获取初始情话。
         """
         self.love_quote_service = LoveQuoteService()
-        self.custom_values = ["嫁你", "嫁给你", "像你", "娶我"]
-        self.max_retries = 3
-        self.quote = self._get_initial_quote()
+        reader = ConfigReader()
+        # 读取配置文件
+        love_quote_config = reader.get_love_quote_config()
+        self.custom_values, self.max_retries = love_quote_config['Custom_Values'], love_quote_config['Max_Retries']
+        self.quote = self.get_initial_quote()
 
-    def _get_initial_quote(self):
+    def get_initial_quote(self):
         """
         获取初始情话。
 
@@ -29,9 +31,6 @@ class LoveQuoterController:
         """
         try:
             initial_quote = self.love_quote_service.get_quote()
-            if not initial_quote:
-                self.logger.warning("无法获取有效的情话数据")
-                return None
             return initial_quote
         except Exception as e:
             self.logger.error(f"获取初始情话时发生错误: {e}")
@@ -52,7 +51,7 @@ class LoveQuoterController:
 
         while retries < self.max_retries:
             if not quote:
-                self.logger.warning("无法获取有效的情话数据")
+                self.logger.warning("无法获取有效的情话数据，返回默认数据")
                 quote = f"致亲爱的老婆：今天接口有问题，我亲口跟你说：我永远爱你！"
                 break
 
@@ -64,6 +63,7 @@ class LoveQuoterController:
                     break
                 # 重新获取情话
                 quote = self.love_quote_service.get_quote()
+                self.logger.warning(f"重新获取的情话为: {quote}")
             else:
                 break
 

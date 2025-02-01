@@ -19,14 +19,14 @@ def setup_logger(level=logging.INFO):
     full_path = os.path.abspath(caller_filename)  # 获取完整路径
 
     # 定义仓库根路径
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # 仓库根路径是当前文的上一级目录
-
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # 仓库根路径是当前文件的上一级目录
 
     # 获取相对于仓库根路径的相对路径
     relative_path = os.path.relpath(full_path, repo_root)
 
     # 将路径中的反斜杠 `\` 替换为点 `.`，并去掉文件扩展名
     module_style_path = relative_path.replace("\\", ".").replace("/", ".")
+    module_style_path = module_style_path.replace(".py", "")  # 去掉 .py 后缀
 
     # 使用模块风格路径作为日志记录器的名称
     logger = logging.getLogger(module_style_path)
@@ -37,7 +37,7 @@ def setup_logger(level=logging.INFO):
         return logger
 
     # 设置日志格式，包含时间、日志级别、模块风格路径、行号和消息
-    log_format = '%(log_color)s%(asctime)s - %(name)s - %(levelname)s [%(filename)s:%(lineno)d] - %(message)s'
+    log_format = '%(log_color)s%(asctime)s [%(levelname)s] %(name)s.%(funcName)s:%(lineno)d - %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
 
     # 创建彩色日志格式器

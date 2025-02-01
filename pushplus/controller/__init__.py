@@ -1,1 +1,2 @@
-from .LoveQuoteController import LoveQuoterController
+from .LoveQuoteController import LoveQuoteController
+from .EventController import EventController

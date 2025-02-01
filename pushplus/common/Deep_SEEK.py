@@ -52,7 +52,7 @@ class DeepSeek:
 # # 示例用法
 # if __name__ == "__main__":
 #     # 初始化客户端
-#     deepseek = DeepSeek(api_key="sk-b416e4a8c2a7413caf8c87a5fcf2c57f")
+#     deepseek = DeepSeek(CalendarKEY="sk-b416e4a8c2a7413caf8c87a5fcf2c57f")
 #
 #     # 获取响应
 #     try:

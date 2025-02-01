@@ -60,10 +60,10 @@ jobs:
         if: github.event_name == 'schedule' && github.event.schedule == '00 03 * * *' || github.event_name == 'workflow_dispatch'
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
-          CalendarAPI_KEY: ${{ secrets.CalendarAPI_KEY }}
+          CalendarAPI_KEY: ${{ secrets.CalendarKEY }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
         run: |
-          python pushplus/Event_Reminder/Event.py
+          python pushplus/main.py event 
 
       - name: Run Weather Reminder Script
         if: github.event_name == 'schedule' && github.event.schedule == '00 13 * * *' || github.event_name == 'workflow_dispatch'

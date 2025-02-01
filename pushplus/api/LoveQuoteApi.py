@@ -1,44 +1,38 @@
 import requests
 import os
 import random
-import logging
-import configparser
-from pathlib import Path
+from pushplus.logger_config import setup_logger
+from pushplus.config import *
 
 class LoveQuoteApi:
     """
     用于从天API获取随机情话的类。
 
     属性:
-        api_key (str): 用于访问天API的API密钥。
+        CalendarKEY (str): 用于访问天API的API密钥。
         quote_urls (list): 包含两个URL的列表，分别用于获取情话和彩虹屁。
     """
-    logger = logging.getLogger(__name__)  # 创建一个与当前模块同名的日志记录器
+    logger = setup_logger()  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
         初始化LoveQuoteApi实例，从config.ini文件中读取API URL，并从环境变量中获取API密钥。
         """
-        # 使用相对路径读取配置文件
-        config_path = Path(__file__).resolve().parents[1] / 'config.ini'
-        config = configparser.ConfigParser()
-        config.read(config_path)
+        reader = ConfigReader()
+        # 读取配置文件中的URL
+        love_quote_config = reader.get_love_quote_config()
+        self.say_love_url, self.cai_hong_pi_url = love_quote_config['SayLoveURL'], love_quote_config['CaiHongPiURL']
 
         self.api_key = os.getenv('TIAN_KEY')
         if not self.api_key:
             raise ValueError("未设置 TIAN_KEY 环境变量")
-
-        # 读取配置文件中的URL
-        self.say_love_url = config['LoveQuoteConfig']['SayLoveURL']
-        self.cai_hong_pi_url = config['LoveQuoteConfig']['CaiHongPiURL']
-
         # 构建完整的URL
+
         self.quote_urls = [
             f"{self.say_love_url}?key={self.api_key}",
             f"{self.cai_hong_pi_url}?key={self.api_key}"
         ]
 
-        self.logger.info("LoveQuoteApi 初始化完成")
 
     def get_random_quote(self):
         """
@@ -68,4 +62,5 @@ class LoveQuoteApi:
             self.logger.error(f"发生错误：{e}")
 
         # 请求失败返回None
+        self.logger.error("请求失败，返回空")
         return None

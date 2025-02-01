@@ -53,7 +53,7 @@ class DateHandler:
             ("老婆阳历生日（记得给老婆买高跟鞋）", "9月19日"),
             ('和老婆在一起的纪念日', '11月14日'),
             ('外婆农历生日', '7月24日'),
-            ('我的阳历生日', '10月15日'),
+            ('我的阳历生日', '2月5日'),
             ('我的农历生日', '8月29日')
         ]
         self.logger.info("获取到所有需要检查的事件信息: %s", event_days)
@@ -97,12 +97,12 @@ class CalendarAPI:
         """
         初始化CalendarAPI实例。
 
-        :param api_key: API访问密钥
+        :param CalendarKEY: API访问密钥
         """
         self.api_url = 'http://v.juhe.cn/calendar/day'  # 日历API的URL
-        self.api_key = os.environ.get('CalendarAPI_KEY')
+        self.api_key = os.environ.get('CalendarKEY')
         if not self.api_key:
-            raise ValueError("CalendarAPI_KEY 环境变量未设置。")
+            raise ValueError("CalendarKEY 环境变量未设置。")
         self.logger.info("CalendarAPI 初始化完成")
 
     @staticmethod
@@ -213,7 +213,7 @@ def main():
                  for name, date, solar_date, days in event_days_soon])
             logger.info("构建的邮件内容: %s", content)
             logger.info("正在发送重要日期提醒邮件...")
-            email_notifier.send_reminder_email('重要日期提醒', content, is_group_send=False)
+            # email_notifier.send_reminder_email('重要日期提醒', content, is_group_send=False)
         else:
             logger.info('未来七天内未有事件')
     except Exception as e:
