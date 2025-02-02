@@ -21,6 +21,7 @@ class EventService:
         reader = ConfigReader()
         event_config = reader.get_event_config()
         self.event_days= event_config['EventDays']
+        self.name = event_config['Name']
         self.current_year = datetime.now().year
         self.event_api = EventApi()
 
@@ -114,8 +115,8 @@ class EventService:
         for _event in self.event_days:
             name, date_str = _event  # 更清晰地命名变量
 
-            if '重要' in name or '紧急' in name:
-                # 如果名称包含'重要'或'紧急'，则直接使用提供的日期字符串
+            if any(value in name for value in self.name):
+                # 如果名称包含过滤词，则直接使用提供的日期字符串
                 parsed_events.append({'name': name, 'date_str':date_str,'date': date_str})
                 continue  # 跳过后续处理
 

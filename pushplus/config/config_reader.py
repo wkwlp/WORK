@@ -75,11 +75,26 @@ class ConfigReader:
     def get_event_config(self):
         try:
             event_section = self.config['EventConfig']
-            event_config = {
+
+            raw_config = {
                 'CalendarURL': event_section.get('CalendarURL'),
                 'EventDays': self.json.loads(event_section.get('EventDays')),  # 使用实例变量 self.json
-                'Day': event_section.getint('Day')  # 显式转换为整数
+                'Day': event_section.getint('Day'),  # 显式转换为整数
+                'Name': event_section.get('Name')
             }
+
+            # 处理 Name
+            Name_str = raw_config['Name']
+            Name_str = [value.strip() for value in Name_str.split(',')] if Name_str else []
+
+            # 构建最终的配置字典
+            event_config = {
+                'CalendarURL': raw_config['CalendarURL'],
+                'EventDays': raw_config['EventDays'],
+                'Day': raw_config['Day'],
+                'Name': Name_str
+            }
+
             return event_config
         except (NoSectionError, NoOptionError) as e:
             self.logger.error(f"读取 EventConfig 配置失败: {e}")
