@@ -1,4 +1,4 @@
-from pushplus.logger_config import setup_logger
+from pushplus.config.logger_config import setup_logger
 from pushplus.service import *
 from pushplus.config import *
 from datetime import datetime
@@ -19,8 +19,9 @@ class EventController:
         """
         self.logger = setup_logger()
         self.event_service = EventService()
-        config = ConfigReader()
-        self.day = int(config.get_event_config()['Day'])  # 确保day是整数
+        event_config = ConfigReader()
+        self.name = event_config.get_event_config()['Name']
+        self.day = int(event_config.get_event_config()['Day'])  # 确保day是整数
 
     def get_events(self):
         """
@@ -31,6 +32,7 @@ class EventController:
             如果事件名称中包含'重要'或'紧急'，则diff_days设置为0。
         """
         events = self.event_service.handle_events()
+        self.logger.info(f"获取到的事件列表为：{events}")
         today = datetime.now().date()
 
         if not events:
@@ -38,19 +40,19 @@ class EventController:
 
         for event in events:
             name = event['name']
-            date_str = event['date']
+            date = event['date']
 
-            if '重要' in name or '紧急' in name:
+            if any(value in name for value in self.name):
                 # 对于重要或紧急事件，直接将diff_days设置为0
                 event['diff_days'] = 0
             else:
                 try:
-                    event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    event_date = datetime.strptime(date, '%Y-%m-%d').date()
                     diff_days = (event_date - today).days
                     event['diff_days'] = diff_days
                 except ValueError:
                     # 如果日期格式不正确，记录错误并跳过该事件
-                    self.event_service.logger.error(f"无法解析日期 {date_str} 对应的事件 {name}")
+                    self.event_service.logger.error(f"无法解析日期 {date} 对应的事件 {name}")
                     continue
 
         return events
@@ -79,16 +81,9 @@ class EventController:
                     item = f"{name}: {date_str}（公历日期：{date}，距离今天{diff_days}天）"
                 notification_items.append(item)
 
-        if not notification_items:
-            self.logger.info("未来七天内未有事件")
-            return None
-
         content = "未来有以下日子需要注意：\n" + "\n".join(notification_items)
-        return content
 
-# 示例调用
-if __name__ == "__main__":
-    event_controller = EventController()
-    events = event_controller.get_events()
-    content = event_controller.handle_content(events)
-    print(content)
+        if notification_items:
+            return {'status': 200, 'message': '邮件准备发送', 'content': content, 'send_email': True}
+        else:
+            return {'status': 400, 'message': '未来七天内未有事件', 'content': None, 'send_email': False}

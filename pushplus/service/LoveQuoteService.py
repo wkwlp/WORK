@@ -1,4 +1,4 @@
-from pushplus.logger_config import setup_logger
+from pushplus.config.logger_config import setup_logger
 from pushplus.api import *
 
 

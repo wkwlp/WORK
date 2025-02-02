@@ -1,5 +1,5 @@
 import os
-from pushplus.logger_config import setup_logger
+from pushplus.config.logger_config import setup_logger
 import requests
 import re
 from pushplus.config import *

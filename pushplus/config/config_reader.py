@@ -3,7 +3,7 @@ import json
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 # 设置日志记录
-from pushplus.logger_config import setup_logger
+from pushplus.config.logger_config import setup_logger
 
 
 class ConfigReader:

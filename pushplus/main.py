@@ -1,11 +1,12 @@
 from pushplus.controller import *
 from pushplus.utils import *
 from pushplus.service import *
-from pushplus.logger_config import setup_logger  # 从 pushplus 目录导入 setup_logger
+from pushplus.config.logger_config import setup_logger
 import argparse
 
 
 class PushPlus:
+    logger = setup_logger()
     def __init__(self, task_name):
         self.task_name = task_name
         self.logger = setup_logger()
@@ -20,7 +21,7 @@ class PushPlus:
 
         if result['status'] == 200 and result.get('send_email', False):
             try:
-                self.send_email.send_reminder_email('每日小情话', result['quote'], is_group_send=False)
+                self.send_email.send_reminder_email('每日小情话', result.get('quote'), is_group_send=False)
                 self.logger.info(f"邮件已发送, 内容：{result['quote']}")
             except Exception as e:
                 self.logger.error(f"邮件发送失败，原因: {str(e)}")
@@ -34,27 +35,28 @@ class PushPlus:
         event_service = EventService()
         calendar_content = event_service.get_calendar() # 默认使用明天的日期
 
+        if calendar_content['status'] == 200 and calendar_content.get('send_email', False):
+            try:
+                self.send_email.send_reminder_email('节日提醒', calendar_content.get('calendar_content'), is_group_send=False)
+                self.logger.info(f"邮件已发送, 内容：{calendar_content['calendar_content']}")
+            except Exception as e:
+                self.logger.error(f"邮件发送失败，原因: {str(e)}")
+        else:
+            self.logger.warning(f"邮件发送失败，原因: {calendar_content.get('message', '未知错误')}")
+
         # 处理事件信息
         event_controller = EventController()
         events = event_controller.get_events()
         content = event_controller.handle_content(events)
 
-        if calendar_content['holiday']:
+        if content['status'] == 200 and content.get('send_email', False):
             try:
-                calendar_content = f"节日提醒: {calendar_content['date']} {calendar_content['holiday']}"
-                self.send_email.send_reminder_email('节日提醒', calendar_content, is_group_send=False)
-                self.logger.info(f"邮件已发送, 内容：{calendar_content}")
+                self.send_email.send_reminder_email('事件提醒', content.get('content'), is_group_send=False)
+                self.logger.info(f"邮件已发送, 内容：{content['content']}")
             except Exception as e:
                 self.logger.error(f"邮件发送失败，原因: {str(e)}")
         else:
-            self.logger.warning(f"邮件发送失败，原因: holiday数据为空")
-
-        if content:
-            try:
-                self.send_email.send_reminder_email('事件提醒', content, is_group_send=False)
-                self.logger.info(f"邮件已发送, 内容：{content}")
-            except Exception as e:
-                self.logger.error(f"邮件发送失败，原因: {str(e)}")
+            self.logger.warning(f"邮件发送失败，原因: {content.get('message', '未知错误')}")
 
     def run(self):
         if self.task_name == 'love_quote':

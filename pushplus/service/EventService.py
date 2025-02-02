@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import lunardate
-from pushplus.logger_config import setup_logger
+from pushplus.config.logger_config import setup_logger
 from pushplus.api import *
 from pushplus.config import *
 
@@ -25,7 +25,7 @@ class EventService:
         self.current_year = datetime.now().year
         self.event_api = EventApi()
 
-    def get_calendar(self, query_date: str = None) -> tuple or None:
+    def get_calendar(self, query_date: str = None) :
         """
         获取并处理指定日期的日历信息。
 
@@ -51,15 +51,22 @@ class EventService:
             calendar_data = self.event_api.get_calendar(query_date)
 
             # 处理获取到的日历数据
-            date_info, holiday_info = self.handle_calendar(calendar_data)
-            calendar_content = {"date":date_info,"holiday":holiday_info}
-            return calendar_content
+            date_str = self.handle_calendar(calendar_data)
+
+            # 组装节日提醒内容
+            calendar_content = f"节日提醒: {date_str.get('calendar_data')} {date_str.get('calendar_holiday')}"
+
+            if date_str.get('calendar_holiday'):
+                return {'status': 200, 'message': '节日提醒邮件准备发送', 'calendar_content': calendar_content, 'send_email': True}
+            else:
+                return {'status': 400, 'message': '未获取到节日信息', 'calendar_content': calendar_content, 'send_email': False}
+
 
         except Exception as e:
             self.logger.error(f"处理日历信息时发生错误: {e}")
             return None, None
 
-    def handle_calendar(self, response_data: dict) -> tuple:
+    def handle_calendar(self, response_data: dict) -> dict:
         """
         从API响应数据中提取日历信息。
 
@@ -76,31 +83,32 @@ class EventService:
             # 检查response_data是否为None或者缺少必要的键
             if not response_data or 'result' not in response_data or response_data['result'] is None:
                 self.logger.error("API响应中未找到有效的日历信息")
-                return None, None
+                return {}
 
             # 提取嵌套的data字典
             result = response_data['result']
             if 'data' not in result:
                 self.logger.error("API响应中未找到有效的data字段")
-                return None, None
+                return {}
 
             data = result['data']
 
             calendar_data = data.get('date')
             calendar_holiday = data.get('holiday')
 
-            self.logger.info("获取到的日历数据: {时间: %s, 节日: %s}", calendar_data, calendar_holiday)
+            self.logger.info("提取到的日历数据: {时间: %s, 节日: %s}", calendar_data, calendar_holiday)
 
             if not calendar_data:
                 self.logger.error("获取日历数据date为空")
             if not calendar_holiday:
                 self.logger.warning("获取日历数据holiday为空")
 
-            return calendar_data, calendar_holiday
+            date_str = {'calendar_data': calendar_data, 'calendar_holiday': calendar_holiday}
+            return date_str
 
         except Exception as e:
             self.logger.error(f"处理日历信息时发生错误: {e}")
-            return None, None
+            return {}
 
     def handle_events(self):
         """
@@ -110,14 +118,14 @@ class EventService:
         如果事件名称中包含'重要'或'紧急'，则直接使用提供的日期字符串，不进行转换。
         返回一个列表，每个元素是字典，包含name和转换后的date。
         """
-        parsed_events = []
+        handle_events = []
 
         for _event in self.event_days:
             name, date_str = _event  # 更清晰地命名变量
 
             if any(value in name for value in self.name):
                 # 如果名称包含过滤词，则直接使用提供的日期字符串
-                parsed_events.append({'name': name, 'date_str':date_str,'date': date_str})
+                handle_events.append({'name': name, 'date_str':date_str, 'date': date_str})
                 continue  # 跳过后续处理
 
             # 提取月份和日子
@@ -137,12 +145,12 @@ class EventService:
                 formatted_date = f"{self.current_year}-{month:02d}-{day:02d}"
 
             # 使用字典存储name和formatted_date
-            parsed_events.append({'name': name, 'date_str':date_str,'date': formatted_date})
+            handle_events.append({'name': name, 'date_str':date_str, 'date': formatted_date})
 
-        return parsed_events
+        return handle_events
 
 # 示例调用
 if __name__ == "__main__":
     event = EventService()
-    a= event.handle_events()
+    a= event.get_calendar()
     print(a)

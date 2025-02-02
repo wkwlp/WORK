@@ -1,7 +1,7 @@
 import requests
 import os
 import random
-from pushplus.logger_config import setup_logger
+from pushplus.config.logger_config import setup_logger
 from pushplus.config import *
 
 class LoveQuoteApi:
