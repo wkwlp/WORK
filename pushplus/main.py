@@ -64,7 +64,7 @@ class PushPlus:
 
 if __name__ == '__main__':
     # 默认任务为 'love_quote'
-    default_task = 'event'
+    default_task = 'love_quote'
 
     parser = argparse.ArgumentParser(description='PushPlus 任务运行器')
     parser.add_argument('task', type=str, choices=['love_quote', 'event'],
