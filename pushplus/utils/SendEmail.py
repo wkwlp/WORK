@@ -1,6 +1,5 @@
 import os
 import requests
-from pushplus.config.logger_config import setup_logger
 from pushplus.config import *
 
 __all__ = ['SendEmail']
