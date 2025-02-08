@@ -47,27 +47,26 @@ class LoveQuoteController:
         :return: 包含状态码、消息和情话内容的结果字典。
         """
         retries = 0
-        quote = self.quote
 
         while retries < self.max_retries:
-            if not quote:
+            if not self.quote:
                 self.logger.warning("无法获取有效的情话数据，返回默认数据")
-                quote = f"致亲爱的老婆：今天接口有问题，我亲口跟你说：我永远爱你！"
+                self.quote = f"致亲爱的老婆：今天接口有问题，我亲口跟你说：我永远爱你！"
                 break
 
-            if any(value in quote for value in self.custom_values):
+            if any(value in self.quote for value in self.custom_values):
                 self.logger.warning(f"情话包含不合适的词语: {self.custom_values}")
                 retries += 1
                 if retries >= self.max_retries:
-                    quote = f"致亲爱的老婆：今天接口有问题，我亲口跟你说：我永远爱你！"
+                    self.quote = f"致亲爱的老婆：今天接口有问题，我亲口跟你说：我永远爱你！"
                     break
                 # 重新获取情话
-                quote = self.love_quote_service.get_quote()
-                self.logger.warning(f"重新获取的情话为: {quote}")
+                self.quote = self.get_initial_quote()
+                self.logger.warning(f"重新获取的情话为: {self.quote}")
             else:
                 break
 
-        if quote:
-            return {'status': 200, 'message': '邮件准备发送', 'quote': quote, 'send_email': True}
+        if self.quote:
+            return {'status': 200, 'message': '邮件准备发送', 'quote': self.quote, 'send_email': True}
         else:
             return {'status': 400, 'message': '无法获取有效的情话数据'}

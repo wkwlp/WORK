@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 import logging
 from pushplus.common import *
+from pushplus.utils import *
 
 
 # 配置日志记录
@@ -58,7 +59,7 @@ class WeatherInfoFetcher:
             str: 构造好的完整请求URL。
         """
         base_url = "https://restapi.amap.com/v3/weather/weatherInfo"
-        complete_url = f"{base_url}?city={city}&key={self.amap_key}&extensions={extensions}&output={output}"
+        complete_url = f"{base_url}?city={city}&key={self.amap_key}&extension={extensions}&output={output}"
         self.logger.info(f"完整的url: {complete_url.replace(self.amap_key, '[SENSITIVE_DATA]', 1)}")
         return complete_url
 
@@ -271,7 +272,7 @@ def main():
     email_sender = SendEmail()
 
     # 创建调用模型实例
-    deepseek = DeepSeek(api_key='sk-b416e4a8c2a7413caf8c87a5fcf2c57f')
+    deepseek = DeepSeek()
 
     # 获取实时天气信息
     realtime_weather = weather_fetcher.fetch_live_weather_info()
@@ -281,7 +282,8 @@ def main():
     forecast_weather, weather_condition = weather_fetcher.fetch_weather_info()
     logger.info(f"预报天气信息：{forecast_weather}，天气状况：{weather_condition}")
     # 获取天气建议
-    weather_condition = deepseek.generate_response(f'根据内容帮我写一段关于明日的天气状况温馨提示，要求：内容简洁（30字以内），语气温柔，生成文字不需要再编辑、开头需加上‘亲爱的老婆：’、内容不包含具体天气、日期、时间{forecast_weather}')
+    weather_condition = deepseek.get_response(
+        f'根据内容帮我写一段关于明日的天气状况温馨提示，要求：内容简洁（30字以内），语气温柔，生成文字不需要再编辑、开头需加上‘亲爱的老婆：’、内容不包含具体天气、日期、时间{forecast_weather}')
     logger.info(f"天气状况建议：{weather_condition}")
 
     # 拼接天气信息
