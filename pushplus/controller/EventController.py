@@ -1,7 +1,5 @@
-from pushplus.config.logger_config import setup_logger
-from pushplus.service import *
-from pushplus.config import *
 from datetime import datetime
+import pushplus
 
 class EventController:
     """
@@ -17,9 +15,9 @@ class EventController:
 
         在初始化时，调用Service层获取初始情话。
         """
-        self.logger = setup_logger()
-        self.event_service = EventService()
-        event_config = ConfigReader()
+        self.logger = pushplus.setup_logger()
+        self.event_service = pushplus.EventService()
+        event_config = pushplus.ConfigReader()
         self.name = event_config.get_event_config()['Name']
         self.day = int(event_config.get_event_config()['Day'])  # 确保day是整数
 

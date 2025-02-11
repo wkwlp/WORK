@@ -154,7 +154,7 @@ class WeatherInfoFetcher:
             result += f"南宁市{realtime_weather['city']}-实时天气信息:\n"
 
             # 添加天气状况信息
-            result += f"天气状况: {realtime_weather['weather']}\n"
+            result += f"天气状况: {realtime_weather['weather_service']}\n"
 
             # 添加当前温度信息
             result += f"温度: {realtime_weather['temperature']}°C\n"
@@ -282,7 +282,7 @@ def main():
     forecast_weather, weather_condition = weather_fetcher.fetch_weather_info()
     logger.info(f"预报天气信息：{forecast_weather}，天气状况：{weather_condition}")
     # 获取天气建议
-    weather_condition = deepseek.get_response(
+    weather_condition = deepseek.send_message(
         f'根据内容帮我写一段关于明日的天气状况温馨提示，要求：内容简洁（30字以内），语气温柔，生成文字不需要再编辑、开头需加上‘亲爱的老婆：’、内容不包含具体天气、日期、时间{forecast_weather}')
     logger.info(f"天气状况建议：{weather_condition}")
 
@@ -290,7 +290,7 @@ def main():
     weather = f'{realtime_weather}{forecast_weather}{weather_condition}'
     logger.info(f"完整天气信息：{weather}")
     # # 发送邮件提醒
-    # email_sender.send_reminder_email('天气提醒', weather, is_group_send=True)
+    # email_sender.send_reminder_email('天气提醒', weather_service, is_group_send=True)
 
 
 if __name__ == "__main__":

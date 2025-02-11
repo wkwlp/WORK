@@ -1,6 +1,6 @@
-from pushplus.config.logger_config import setup_logger
-from pushplus.service import *
-from pushplus.config import *
+import pushplus
+
+
 class LoveQuoteController:
     """
     负责业务逻辑判断并决定是否发送邮件的控制器类。
@@ -8,7 +8,6 @@ class LoveQuoteController:
     该类接收情话内容，检查是否存在需要过滤的字段，并决定是否准备发送邮件。
     如果情话为None或包含过滤字段，则进行相应处理。
     """
-    logger = setup_logger()  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
@@ -16,8 +15,9 @@ class LoveQuoteController:
 
         在初始化时，调用Service层获取初始情话。
         """
-        self.love_quote_service = LoveQuoteService()
-        reader = ConfigReader()
+        self.logger = pushplus.setup_logger()
+        self.love_quote_service = pushplus.LoveQuoteService()
+        reader = pushplus.ConfigReader()
         # 读取配置文件
         love_quote_config = reader.get_love_quote_config()
         self.custom_values, self.max_retries = love_quote_config['Custom_Values'], love_quote_config['Max_Retries']

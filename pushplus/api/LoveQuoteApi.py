@@ -1,8 +1,7 @@
 import requests
 import os
 import random
-from pushplus.config.logger_config import setup_logger
-from pushplus.config import *
+import pushplus
 
 class LoveQuoteApi:
     """
@@ -12,13 +11,13 @@ class LoveQuoteApi:
         CalendarKEY (str): 用于访问天API的API密钥。
         quote_urls (list): 包含两个URL的列表，分别用于获取情话和彩虹屁。
     """
-    logger = setup_logger()  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
         初始化LoveQuoteApi实例，从config.ini文件中读取API URL，并从环境变量中获取API密钥。
         """
-        reader = ConfigReader()
+        self.logger = pushplus.setup_logger()
+        reader = pushplus.ConfigReader()
         # 读取配置文件中的URL
         love_quote_config = reader.get_love_quote_config()
         self.say_love_url, self.cai_hong_pi_url = love_quote_config['SayLoveURL'], love_quote_config['CaiHongPiURL']

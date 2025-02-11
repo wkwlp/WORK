@@ -1,5 +1,4 @@
-from pushplus.config.logger_config import setup_logger
-from pushplus.api import *
+import pushplus
 
 
 class LoveQuoteService:
@@ -8,7 +7,6 @@ class LoveQuoteService:
 
     该类负责调用外部API获取随机情话，并对返回的数据进行处理，最终返回格式化后的情话内容。
     """
-    logger = setup_logger()  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
@@ -16,7 +14,8 @@ class LoveQuoteService:
 
         在初始化时，会创建一个LoveQuoteApi实例用于后续获取情话数据。
         """
-        self.love_quote_api = LoveQuoteApi()
+        self.logger = pushplus.setup_logger()
+        self.love_quote_api = pushplus.LoveQuoteApi()
 
     def get_quote(self):
         """
@@ -69,6 +68,3 @@ class LoveQuoteService:
         # 返回提取到的情话内容
         self.logger.info("成功获取情话内容: %s", content)
         return content
-
-# love =LoveQuoteService()
-# print(love)

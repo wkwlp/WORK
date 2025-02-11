@@ -1,10 +1,8 @@
 import os
 from openai import OpenAI
-from pushplus.config import *
+import pushplus
 
 class HunYuan:
-    logger = setup_logger()
-
     def __init__(self, api_key=None, model="hunyuan-turbo"):
         """
         初始化 HunYuan 类。
@@ -13,10 +11,10 @@ class HunYuan:
         :param model: 使用的模型名称，默认是 "hunyuan-turbo"。
         """
         # 读取配置文件中的DeepSeek配置
-        reader = ConfigReader()
+        reader = pushplus.ConfigReader()
         get_hunyuan_config = reader.get_hunyuan_config()
         self.url = get_hunyuan_config['URL']
-
+        self.logger = pushplus.setup_logger()
         self.hunyuan_api_key = api_key or os.environ.get("HunYuan_Key")
         if not self.hunyuan_api_key:
             self.logger.error("未设置 HunYuan_Key 环境变量")

@@ -1,2 +1,5 @@
-from .config_reader import ConfigReader
-from .logger_config import setup_logger
+from .config import ConfigReader
+from .config  import setup_logger
+
+
+__all__ = ['ConfigReader','setup_logger']

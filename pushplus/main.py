@@ -1,22 +1,19 @@
-from pushplus.controller import *
-from pushplus.utils import *
-from pushplus.service import *
-from pushplus.config.logger_config import setup_logger
+import pushplus
 import argparse
 
 
 class PushPlus:
-    logger = setup_logger()
+
     def __init__(self, task_name):
         self.task_name = task_name
-        self.logger = setup_logger()
-        self.send_email = SendEmail()
+        self.logger = pushplus.setup_logger()
+        self.send_email = pushplus.SendEmail()
 
     def handle_love_quote(self):
         """处理情话任务"""
         self.logger.info("开始处理情话任务")
         # 获取情话
-        love_quoter_controller = LoveQuoteController()
+        love_quoter_controller = pushplus.LoveQuoteController()
         result = love_quoter_controller.handle_quote()
 
         if result['status'] == 200 and result.get('send_email', False):
@@ -32,7 +29,7 @@ class PushPlus:
         """处理事件任务"""
         self.logger.info("开始处理事件任务")
         # 获取日历信息
-        event_service = EventService()
+        event_service = pushplus.EventService()
         calendar_content = event_service.get_calendar() # 默认使用明天的日期
 
         if calendar_content['status'] == 200 and calendar_content.get('send_email', False):
@@ -45,7 +42,7 @@ class PushPlus:
             self.logger.warning(f"邮件发送失败，原因: {calendar_content.get('message', '未知错误')}")
 
         # 处理事件信息
-        event_controller = EventController()
+        event_controller = pushplus.EventController()
         events = event_controller.get_events()
         content = event_controller.handle_content(events)
 

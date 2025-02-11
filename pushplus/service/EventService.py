@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta
 import lunardate
-from pushplus.config.logger_config import setup_logger
-from pushplus.api import *
-from pushplus.config import *
+import pushplus
 
 class EventService:
     """
@@ -10,7 +8,6 @@ class EventService:
 
     该类负责调用外部API获取指定日期的日历信息，并对返回的数据进行处理，最终返回格式化后的日历内容。
     """
-    logger = setup_logger()  # 创建一个与当前模块同名的日志记录器
 
     def __init__(self):
         """
@@ -18,12 +15,13 @@ class EventService:
 
         在初始化时，会创建一个EventApi实例用于后续获取日历数据。
         """
-        reader = ConfigReader()
+        reader = pushplus.ConfigReader()
         event_config = reader.get_event_config()
         self.event_days= event_config['EventDays']
         self.name = event_config['Name']
         self.current_year = datetime.now().year
-        self.event_api = EventApi()
+        self.event_api = pushplus.EventApi()
+        self.logger = pushplus.setup_logger()
 
     def get_calendar(self, query_date: str = None) :
         """

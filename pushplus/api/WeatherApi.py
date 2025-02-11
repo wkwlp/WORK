@@ -1,124 +1,158 @@
 import requests
 import os
-from pushplus.config import *
+from typing import Optional, Dict, Tuple
+import pushplus
 from fuzzywuzzy import process
 
 
 class WeatherApi:
     """
-    用于从高德地图API获取天气信息的类。
+    高德天气API服务封装类
     """
 
-    def __init__(self, content: str = None):
+    # 常量定义
+    MIN_SCORE = 20  # 模糊匹配最低置信度
+    REQUEST_TIMEOUT = 10  # API请求超时时间(秒)
+
+    def __init__(self):
         """
-        初始化WeatherApi实例。
-
-        从配置文件中读取API URL、城市列表、气象类型等参数，并从环境变量中获取API密钥。
-
-        参数:
-        - content (str): 用户提供的城市名称，默认为None。如果未提供，则记录错误日志。
+        初始化天气查询实例
+        :raises ValueError: 当必要参数缺失时抛出
         """
-        # 创建一个与当前模块同名的日志记录器
-        self.logger = setup_logger()
+        self.logger = pushplus.setup_logger()
 
-        reader = ConfigReader()
-        # 读取配置文件中的URL和其他参数
-        weather_config = reader.get_weather_config()
-
-        self.url = weather_config.get('URL')
-        self.city = weather_config.get('City')
-        self.extension = weather_config.get('Extension')
-        self.output = weather_config.get('Output')[0]
-        if content is None:
-            self.logger.error("未提供城市名称")
-        self.content = content
+        try:
+            config = pushplus.ConfigReader().get_weather_config()
+            self.url = config['URL']
+            self.city_map = config['City']
+            self.extensions_map = config['Extensions']
+            self.output_format = config['Output'][0]
+        except KeyError as e:
+            self.logger.critical(f"关键配置项缺失: {e}")
+            raise ValueError(f"配置文件不完整，缺失 {e} 配置项")
 
         self.weather_key = os.getenv('Weather_Key')
         if not self.weather_key:
-            raise ValueError("未设置 Weather_Key 环境变量")
+            self.logger.error("未检测到Weather_Key环境变量")
+            raise ValueError("Weather_Key环境变量未设置")
 
-    def _handle_input(self) -> (str, str):
-        """
-        处理输入的城市名称和气象类型，进行模糊匹配并返回相应的编码。
+    def _parse_query(self, content: str) -> Tuple[Optional[str], Optional[str]]:
+        """增强型模糊匹配解析器"""
+        # 城市名称匹配分析
+        city_scores = process.extract(content, self.city_map.keys())
+        self.logger.debug(f"城市匹配: {city_scores}")
+        # 气象类型匹配分析
+        ext_scores = process.extract(content, self.extensions_map.keys())
+        self.logger.debug(f"气象匹配: {ext_scores}")
 
-        返回:
-        - tuple: 包含(city_code, extension_code)，如果匹配失败则返回(None, None)。
-        """
-        city_key = list(self.city.keys())
-        extension_key = list(self.extension.keys())
-        if self.content is None:
-            return None, None
-        # 模糊匹配城市名称
-        city_name, score2 = process.extractOne(self.content, extension_key)
-        # 模糊匹配气象名称
-        extension_name, score1 = process.extractOne(self.content, city_key)
+        # 处理最佳匹配
+        city_match = process.extractOne(content, self.city_map.keys())
+        ext_match = process.extractOne(content, self.extensions_map.keys())
+
         self.logger.info(
-            f"城市匹配结果: {city_name}, 相似度得分: {score2}, 气象匹配结果: {extension_name}, 相似度得分: {score1}")
+            f"模糊匹配结果-最高候选:\n"
+            f"城市: {city_match[0]}({city_match[1]}) "
+            f"气象: {ext_match[0]}({ext_match[1]})"
+        )
 
-        # 如果相似度得分低于某个阈值，认为匹配失败
-        if score1 < 20:
-            self.logger.error(f"无法找到足够相似的位置名称: {self.content}")
-            return None, None
+        return (
+            self.city_map.get(city_match[0]) if city_match[1] >= self.MIN_SCORE else None,
+            self.extensions_map.get(ext_match[0]) if ext_match[1] >= self.MIN_SCORE else None
+        )
 
-        return self.city[extension_name], self.extension[city_name]
-
-    def _set_url(self, output=None) -> str:
+    def _build_api_url(self, content: str) -> Optional[str]:
         """
-        根据城市编码和扩展类型编码构建完整的天气查询URL。
-
-        参数:
-        - output (str): 输出格式，默认为None，如果未提供则使用self.output。
-
-        返回:
-        - 完整的URL字符串。
+        构建API请求URL（含敏感信息脱敏处理）
+        :return: 完整的API请求URL或None
         """
-        # 如果没有传入output参数，则使用self.output作为默认值
-        if output is None:
-            output = self.output
+        city_code, ext_code = self._parse_query(content)
+        if not all([city_code, ext_code]):
+            self.logger.error("城市代码或气象类型代码缺失")
+            return None
 
-        # 处理输入内容以获取city_code和extension_code
-        city_code, extension_code = self._handle_input()
-
-        # 构建完整的URL
-        complete_url = f"{self.url}?city={city_code}&key={self.weather_key}&extensions={extension_code}&output={output}"
-
-        # 记录日志并隐藏敏感信息
-        self.logger.info(f"完整的url: {complete_url.replace(self.weather_key, '[SENSITIVE_DATA]', 1)}")
+        params = {
+            'city': city_code,
+            'key': self.weather_key,
+            'extensions': ext_code,
+            'output': self.output_format
+        }
+        query_str = '&'.join([f"{key}={value}" for key, value in params.items()])
+        complete_url = f'{self.url}?{query_str}'
+        # 脱敏处理日志
+        safe_query = complete_url.replace(
+            self.weather_key,
+            '[SENSITIVE_DATA]'  # 隐藏API密钥
+        )
+        self.logger.info(f"请求地址: {safe_query}")
 
         return complete_url
 
-    def get_weather_condition(self) -> dict or None:
+    def get_weather(self, content=None) -> Dict:
         """
-        获取指定城市的天气状况。
+        获取天气数据主入口
+        :param content: 查询内容(格式：城市+气象类型)，示例："北京实时天气"
+        :return: 结构化响应数据
+        """
+        if not content:
+            self.logger.error("必须提供查询内容")
+            return {
+                'status': 400,
+                'message': '请求内容不能为空，请求示例："南宁市预报天气"',
+                'data': None
+            }
 
-        返回:
-        - dict: 包含状态码、消息和天气数据。如果请求失败或未获取到天气数据，则返回错误信息或None。
-        """
-        complete_url = self._set_url()
+        api_url = self._build_api_url(content)
+        if not api_url:
+            return {
+                'status': 400,
+                'message': 'URL不合法，请检查请求地址是否正确',
+                'data': None
+            }
 
         try:
-            # 发送HTTP GET请求
-            response = requests.get(complete_url)
-            self.logger.info(f"发送的请求: {response}")
-            # 检查请求是否成功
-            if response.status_code == 200:
-                # 解析返回的JSON数据
-                weather_data = response.json()
-                self.logger.info(f"收到的响应: {weather_data}")
-                # 返回获取到的数据
-                if weather_data.get('lives') or weather_data.get('forecasts'):
-                    return {'status': 200, 'message': '天气状况获取成功', 'weather_data': weather_data}
-                else:
-                    return {'status': 400, 'message': '未获取到天气状况'}
+            response = requests.get(
+                api_url,
+                timeout=self.REQUEST_TIMEOUT
+            )
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"API请求失败: {str(e)}")
+            return {
+                'status': 500,
+                'message': f"服务请求失败: {str(e)}",
+                'data': None
+            }
 
-            else:
-                self.logger.error(f"请求失败，状态码：{response.status_code}")
-        except Exception as e:
-            self.logger.error(f"发生错误：{e}")
-            return None
+        try:
+            result = response.json()
+            if result.get('status') != '1':
+                self.logger.error(f"API返回错误: {result.get('info')}")
+                return {
+                    'status': 502,
+                    'message': result.get('info', '未知错误'),
+                    'data': None
+                }
+        except ValueError:
+            self.logger.error("响应数据解析失败")
+            return {
+                'status': 503,
+                'message': '数据解析失败',
+                'data': None
+            }
+
+        # 数据格式标准化
+        return {
+            'status': 200,
+            'message': 'success',
+            'data': {
+                'lives': result.get('lives', []),
+                'forecast': result.get('forecasts', [])
+            }
+        }
 
 
 if __name__ == '__main__':
-    weather_api = WeatherApi()
-    weather_data = weather_api.get_weather_condition()
-    print(weather_data)
+    # 示例用法
+    weather_client = WeatherApi()
+    result = weather_client.get_weather('南宁市预报天气')
+    print(f"查询结果：{result}")

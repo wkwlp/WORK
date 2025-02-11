@@ -1,8 +1,7 @@
 import os
-from pushplus.config.logger_config import setup_logger
 import requests
 import re
-from pushplus.config import *
+import pushplus
 from datetime import datetime
 from lunardate import LunarDate
 
@@ -14,13 +13,13 @@ class EventApi:
         CalendarKEY (str): 用于访问聚合数据的API密钥。
         CalendarURL (str): 获取日历信息的API URL。
     """
-    logger = setup_logger()
 
     def __init__(self):
         """
         初始化EventApi实例，从config.ini文件中读取API URL，并从环境变量中获取API密钥。
         """
-        reader = ConfigReader()
+        self.logger = pushplus.setup_logger()
+        reader = pushplus.ConfigReader()
         # 读取配置文件
         event_config = reader.get_event_config()
         # 读取配置文件中的URL

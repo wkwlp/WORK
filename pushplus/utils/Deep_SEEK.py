@@ -1,6 +1,6 @@
 import os
 from openai import OpenAI
-from pushplus.config import *
+import pushplus
 
 class DeepSeek:
     """
@@ -8,10 +8,6 @@ class DeepSeek:
 
     该类用于与DeepSeek API进行交互，生成对话响应。支持必填内容检查和流式模式。
     """
-
-    # 初始化日志记录器
-    logger = setup_logger()
-
     def __init__(self):
         """
         初始化DeepSeek客户端。
@@ -20,10 +16,10 @@ class DeepSeek:
         如果未设置API密钥，则记录错误日志。
         """
         # 读取配置文件中的DeepSeek配置
-        reader = ConfigReader()
-        get_deep_seek_config = reader.get_deep_seek_config()
-        self.url = get_deep_seek_config['URL']
-
+        reader = pushplus.ConfigReader()
+        config = reader.get_deep_seek_config()
+        self.url = config['URL']
+        self.logger = pushplus.setup_logger()
         # 从环境变量中获取DeepSeek API密钥
         self.deepseek_key = os.environ.get('DeepSeek_Key')
         if not self.deepseek_key:
@@ -33,7 +29,7 @@ class DeepSeek:
         # 初始化OpenAI客户端
         self.client = OpenAI(api_key=self.deepseek_key, base_url=self.url)
 
-    def get_response(self, content: str, stream: bool = False) -> str:
+    def send_message(self, content: str, stream: bool = False) -> str:
         """
         生成对话响应。
 
@@ -72,7 +68,7 @@ if __name__ == "__main__":
 
     # 获取响应
     try:
-        response = deepseek.get_response(content="今天是新年第一天开工，请告诉我，我应该注意哪些细节")
+        response = deepseek.send_message(content="今天是新年第一天开工，请告诉我，我应该注意哪些细节")
         print("答复:", response)
     except Exception as e:
         print(f"请求失败: {str(e)}")
