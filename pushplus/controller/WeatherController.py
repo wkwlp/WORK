@@ -11,8 +11,8 @@ class WeatherController:
 
         # 初始化两个不同的服务实例
         self.services = [
-            pushplus.HunYuan(),
-            pushplus.DeepSeek()
+            pushplus.HunYuan(model='hunyuan-pro'),
+            pushplus.DeepSeek(model='deepseek-reasoner')
         ]
 
     def get_random_weather_condition(self, weather_info: dict) -> Optional[str]:
@@ -20,7 +20,10 @@ class WeatherController:
         service = random.choice(self.services)
         self.logger.info(f"使用服务：{service.__class__.__name__}")
         weather_condition = service.send_message(
-            f'根据内容帮我写一段关于明日的天气状况温馨提示，要求：内容简洁（50字以内），语气温柔，生成文字不需要再编辑、开头需加上‘明日天气温馨提示：亲爱的老婆，’、内容不包含具体天气、日期、时间。内容：{weather_info}')
+            f'内容里包含当天和第二天的天气信息，请结合内容帮我写一段关于明日天气状况的温馨提示，要求：内容简洁（40字以内），语气温柔，生成文字不需要再编辑、开头需加上‘温馨提示：亲爱的老婆，’、内容不包含具体天气、日期、时间。内容：{weather_info}')
+        if not weather_condition:
+            return None
+
         self.logger.info(f"天气状况建议：{weather_condition}")
         return weather_condition
 

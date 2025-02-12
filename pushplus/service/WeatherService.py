@@ -60,7 +60,7 @@ class WeatherService:
         for i in range(2):  # 只处理前两天的数据
             cast = weather_dict['casts'][i]
             formatted_info = (f"{location}-天气预报：日期: {cast['date']}(周{cast['week']}), "
-                              f"白天天气状况: {cast['dayweather']}, 温度: {cast['nighttemp']}°C-{cast['daytemp']}°C")
+                              f"天气: {cast['dayweather']}, 温度: {cast['nighttemp']}°C-{cast['daytemp']}°C")
             forecast_info[f'day{i + 1}'] = formatted_info
 
         return forecast_info

@@ -8,7 +8,7 @@ class DeepSeek:
 
     该类用于与DeepSeek API进行交互，生成对话响应。支持必填内容检查和流式模式。
     """
-    def __init__(self):
+    def __init__(self,model="deepseek-chat"):
         """
         初始化DeepSeek客户端。
 
@@ -25,7 +25,7 @@ class DeepSeek:
         if not self.deepseek_key:
             self.logger.error("未设置 DeepSeek_Key 环境变量")
             raise ValueError("DeepSeek_Key 环境变量未设置")
-
+        self.model = model
         # 初始化OpenAI客户端
         self.client = OpenAI(api_key=self.deepseek_key, base_url=self.url)
 
@@ -50,7 +50,7 @@ class DeepSeek:
 
         # 创建聊天请求
         response = self.client.chat.completions.create(
-            model="deepseek-chat",
+            model=self.model,
             messages=[
                 {"role": "user", "content": content}
             ],
@@ -64,7 +64,7 @@ class DeepSeek:
 # 示例用法
 if __name__ == "__main__":
     # 初始化DeepSeek客户端
-    deepseek = DeepSeek()
+    deepseek = DeepSeek(model='deepseek-reasoner')
 
     # 获取响应
     try:

@@ -54,22 +54,36 @@ class PushPlus:
                 self.logger.error(f"邮件发送失败，原因: {str(e)}")
         else:
             self.logger.warning(f"邮件发送失败，原因: {content.get('message', '未知错误')}")
+    def handle_weather(self):
+        self.logger.info("开始处理天气任务")
+        weather_controller = pushplus.WeatherController()
+        weather = weather_controller.get_weather()
+        if weather:
+            try:
+                self.send_email.send_reminder_email(title='天气提醒', content=weather, is_group_send=False)
+                self.logger.info(f"邮件已发送, 内容：{weather}")
+            except Exception as e:
+                self.logger.error(f"邮件发送失败，原因: {str(e)}")
+        else:
+            self.logger.warning(f"邮件发送失败，原因: 无法获取天气信息")
 
     def run(self):
         if self.task_name == 'love_quote':
             self.handle_love_quote()
         elif self.task_name == 'event':
             self.handle_event()
+        elif self.task_name == 'weather':
+            self.handle_weather()
         else:
             self.logger.error(f"未知的任务类型: {self.task_name}")
 
 
 if __name__ == '__main__':
     # 默认任务为 'love_quote'
-    default_task = 'event'
+    default_task = 'weather'
 
     parser = argparse.ArgumentParser(description='PushPlus 任务运行器')
-    parser.add_argument('task', type=str, choices=['love_quote', 'event'],
+    parser.add_argument('task', type=str, choices=['love_quote', 'event','weather'],
                         help='指定要运行的任务类型', nargs='?', default=default_task)
 
     args = parser.parse_args()

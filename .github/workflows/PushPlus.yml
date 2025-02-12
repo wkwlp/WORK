@@ -69,7 +69,9 @@ jobs:
         if: github.event_name == 'schedule' && github.event.schedule == '00 13 * * *' || github.event_name == 'workflow_dispatch'
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
-          AMAP_KEY: ${{ secrets.AMAP_KEY }}
+          Weather_Key: ${{ secrets.Weather_Key }}
+          DeepSeek_Key: ${{ secrets.DeepSeek_Key }}
+          HunYuan_Key: ${{ secrets.HunYuan_Key }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
         run: |
-          python pushplus/Weather_Reminder/Weather.py
+          python pushplus/main.py weather

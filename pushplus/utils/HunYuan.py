@@ -60,7 +60,7 @@ class HunYuan:
 # 示例使用
 if __name__ == "__main__":
     # turbo lite pro 模型可选
-    hunyuan_client = HunYuan(model="hunyuan-turbo")
+    hunyuan_client = HunYuan(model="hunyuan-pro")
 
     user_message = "例如：目前实时天气为15度，明天预测天气为10-20度，请根据这些内容，帮我写一段温馨提示。内容要求：开头加上明日天气温馨提示：亲爱的老婆、限制40字以内、文字不需再编辑、文字内容不包含时间、温度、地区"
 
