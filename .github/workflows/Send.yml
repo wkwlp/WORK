@@ -1,5 +1,5 @@
 # 定义工作流程的名字
-name: PushPlus
+name: send
 
 # 规定工作流程何时触发
 on:
@@ -54,7 +54,7 @@ jobs:
           TIAN_KEY: ${{ secrets.TIAN_KEY }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
         run: |
-          python pushplus/main.py love_quote 
+          python send/main.py love_quote 
 
       - name: Run Event Reminder Script
         if: github.event_name == 'schedule' && github.event.schedule == '00 03 * * *' || github.event_name == 'workflow_dispatch'
@@ -63,7 +63,7 @@ jobs:
           CalendarKEY: ${{ secrets.CALENDARKEY }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
         run: |
-          python pushplus/main.py event 
+          python send/main.py event 
 
       - name: Run Weather Reminder Script
         if: github.event_name == 'schedule' && github.event.schedule == '00 13 * * *' || github.event_name == 'workflow_dispatch'
@@ -74,4 +74,4 @@ jobs:
           HunYuan_Key: ${{ secrets.HunYuan_Key }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
         run: |
-          python pushplus/main.py weather
+          python send/main.py weather
