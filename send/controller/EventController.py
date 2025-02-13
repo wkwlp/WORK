@@ -1,5 +1,5 @@
 from datetime import datetime
-import pushplus
+import send
 
 class EventController:
     """
@@ -15,9 +15,9 @@ class EventController:
 
         在初始化时，调用Service层获取初始情话。
         """
-        self.logger = pushplus.setup_logger()
-        self.event_service = pushplus.EventService()
-        event_config = pushplus.ConfigReader()
+        self.logger = send.setup_logger()
+        self.event_service = send.EventService()
+        event_config = send.ConfigReader()
         self.name = event_config.get_event_config()['Name']
         self.day = int(event_config.get_event_config()['Day'])  # 确保day是整数
 

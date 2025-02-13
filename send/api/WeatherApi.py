@@ -1,7 +1,7 @@
 import requests
 import os
 from typing import Optional, Dict, Tuple
-import pushplus
+import send
 from fuzzywuzzy import process
 
 
@@ -11,7 +11,7 @@ class WeatherApi:
     """
 
     # 常量定义
-    MIN_SCORE = 20  # 模糊匹配最低置信度
+    MIN_SCORE = 50  # 模糊匹配最低置信度
     REQUEST_TIMEOUT = 10  # API请求超时时间(秒)
 
     def __init__(self):
@@ -19,10 +19,10 @@ class WeatherApi:
         初始化天气查询实例
         :raises ValueError: 当必要参数缺失时抛出
         """
-        self.logger = pushplus.setup_logger()
+        self.logger = send.setup_logger()
 
         try:
-            config = pushplus.ConfigReader().get_weather_config()
+            config = send.ConfigReader().get_weather_config()
             self.url = config['URL']
             self.city_map = config['City']
             self.extensions_map = config['Extensions']
@@ -50,7 +50,7 @@ class WeatherApi:
         ext_match = process.extractOne(content, self.extensions_map.keys())
 
         self.logger.info(
-            f"模糊匹配结果-最高候选:\n"
+            f"模糊匹配结果-最高候选:"
             f"城市: {city_match[0]}({city_match[1]}) "
             f"气象: {ext_match[0]}({ext_match[1]})"
         )
@@ -78,12 +78,6 @@ class WeatherApi:
         }
         query_str = '&'.join([f"{key}={value}" for key, value in params.items()])
         complete_url = f'{self.url}?{query_str}'
-        # 脱敏处理日志
-        safe_query = complete_url.replace(
-            self.weather_key,
-            '[SENSITIVE_DATA]'  # 隐藏API密钥
-        )
-        self.logger.info(f"请求地址: {safe_query}")
 
         return complete_url
 

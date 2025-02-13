@@ -1,4 +1,4 @@
-import pushplus
+import send
 import argparse
 
 
@@ -6,14 +6,14 @@ class PushPlus:
 
     def __init__(self, task_name):
         self.task_name = task_name
-        self.logger = pushplus.setup_logger()
-        self.send_email = pushplus.SendEmail()
+        self.logger = send.setup_logger()
+        self.send_email = send.PushPlus()
 
     def handle_love_quote(self):
         """处理情话任务"""
         self.logger.info("开始处理情话任务")
         # 获取情话
-        love_quoter_controller = pushplus.LoveQuoteController()
+        love_quoter_controller = send.LoveQuoteController()
         result = love_quoter_controller.handle_quote()
 
         if result['status'] == 200 and result.get('send_email', False):
@@ -29,7 +29,7 @@ class PushPlus:
         """处理事件任务"""
         self.logger.info("开始处理事件任务")
         # 获取日历信息
-        event_service = pushplus.EventService()
+        event_service = send.EventService()
         calendar_content = event_service.get_calendar() # 默认使用明天的日期
 
         if calendar_content['status'] == 200 and calendar_content.get('send_email', False):
@@ -42,7 +42,7 @@ class PushPlus:
             self.logger.warning(f"邮件发送失败，原因: {calendar_content.get('message', '未知错误')}")
 
         # 处理事件信息
-        event_controller = pushplus.EventController()
+        event_controller = send.EventController()
         events = event_controller.get_events()
         content = event_controller.handle_content(events)
 
@@ -56,7 +56,7 @@ class PushPlus:
             self.logger.warning(f"邮件发送失败，原因: {content.get('message', '未知错误')}")
     def handle_weather(self):
         self.logger.info("开始处理天气任务")
-        weather_controller = pushplus.WeatherController()
+        weather_controller = send.WeatherController()
         weather = weather_controller.get_weather()
         if weather:
             try:

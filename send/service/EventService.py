@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import lunardate
-import pushplus
+import send
 
 class EventService:
     """
@@ -15,13 +15,13 @@ class EventService:
 
         在初始化时，会创建一个EventApi实例用于后续获取日历数据。
         """
-        reader = pushplus.ConfigReader()
+        reader = send.ConfigReader()
         event_config = reader.get_event_config()
         self.event_days= event_config['EventDays']
         self.name = event_config['Name']
         self.current_year = datetime.now().year
-        self.event_api = pushplus.EventApi()
-        self.logger = pushplus.setup_logger()
+        self.event_api = send.EventApi()
+        self.logger = send.setup_logger()
 
     def get_calendar(self, query_date: str = None) :
         """

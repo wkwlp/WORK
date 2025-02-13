@@ -1,10 +1,9 @@
 import os
 import requests
-import pushplus
+import send
 
-__all__ = ['SendEmail']
 
-class SendEmail:
+class PushPlus:
     """
     通过PushPlus服务发送邮件提醒的类。
 
@@ -19,8 +18,8 @@ class SendEmail:
         """
         初始化SendEmail实例，从环境变量中读取PushPlus的服务Token，并从config.ini文件中读取其他配置项。
         """
-        self.logger = pushplus.setup_logger()
-        reader = pushplus.ConfigReader()
+        self.logger = send.setup_logger()
+        reader = send.ConfigReader()
         # 读取配置文件中的URL、模板和推送方式
         get_send_email_config = reader.get_send_email_config()
         self.url, self.template,self.channel = (get_send_email_config['URL'], get_send_email_config['Template'],

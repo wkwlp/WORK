@@ -1,6 +1,6 @@
 import os
 from openai import OpenAI
-import pushplus
+import send
 
 class HunYuan:
     def __init__(self, api_key=None, model="hunyuan-turbo"):
@@ -11,10 +11,10 @@ class HunYuan:
         :param model: 使用的模型名称，默认是 "hunyuan-turbo"。
         """
         # 读取配置文件中的DeepSeek配置
-        reader = pushplus.ConfigReader()
+        reader = send.ConfigReader()
         get_hunyuan_config = reader.get_hunyuan_config()
         self.url = get_hunyuan_config['URL']
-        self.logger = pushplus.setup_logger()
+        self.logger = send.setup_logger()
         self.hunyuan_api_key = api_key or os.environ.get("HunYuan_Key")
         if not self.hunyuan_api_key:
             self.logger.error("未设置 HunYuan_Key 环境变量")
@@ -47,6 +47,7 @@ class HunYuan:
         try:
             # 调用API并传递完整的请求体
             response = self.client.chat.completions.create(**request_body)
+            self.logger.info(f"响应内容:{response}")
             # 检查响应是否包含有效的内容
             if hasattr(response, 'choices') and len(response.choices) > 0:
                 return response.choices[0].message.content

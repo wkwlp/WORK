@@ -1,4 +1,4 @@
-import pushplus
+import send
 
 
 class LoveQuoteService:
@@ -14,8 +14,8 @@ class LoveQuoteService:
 
         在初始化时，会创建一个LoveQuoteApi实例用于后续获取情话数据。
         """
-        self.logger = pushplus.setup_logger()
-        self.love_quote_api = pushplus.LoveQuoteApi()
+        self.logger = send.setup_logger()
+        self.love_quote_api = send.LoveQuoteApi()
 
     def get_quote(self):
         """

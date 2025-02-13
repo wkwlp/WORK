@@ -1,7 +1,7 @@
 import os
 import requests
 import re
-import pushplus
+import send
 from datetime import datetime
 from lunardate import LunarDate
 
@@ -18,8 +18,8 @@ class EventApi:
         """
         初始化EventApi实例，从config.ini文件中读取API URL，并从环境变量中获取API密钥。
         """
-        self.logger = pushplus.setup_logger()
-        reader = pushplus.ConfigReader()
+        self.logger = send.setup_logger()
+        reader = send.ConfigReader()
         # 读取配置文件
         event_config = reader.get_event_config()
         # 读取配置文件中的URL

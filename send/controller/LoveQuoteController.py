@@ -1,4 +1,4 @@
-import pushplus
+import send
 
 
 class LoveQuoteController:
@@ -15,9 +15,9 @@ class LoveQuoteController:
 
         在初始化时，调用Service层获取初始情话。
         """
-        self.logger = pushplus.setup_logger()
-        self.love_quote_service = pushplus.LoveQuoteService()
-        reader = pushplus.ConfigReader()
+        self.logger = send.setup_logger()
+        self.love_quote_service = send.LoveQuoteService()
+        reader = send.ConfigReader()
         # 读取配置文件
         love_quote_config = reader.get_love_quote_config()
         self.custom_values, self.max_retries = love_quote_config['Custom_Values'], love_quote_config['Max_Retries']

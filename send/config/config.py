@@ -140,7 +140,9 @@ class ConfigReader:
                 'URL': weather_section.get('URL'),
                 'Output': json.loads(weather_section.get('Output')),
                 'City': json.loads(weather_section.get('City')),
-                'Extensions': json.loads(weather_section.get('Extensions'))
+                'Extensions': json.loads(weather_section.get('Extensions')),
+                'Condition': weather_section.get('Condition'),
+                'Cities': json.loads(weather_section.get('Cities'))
             }
             return weather_config
         except (NoSectionError, NoOptionError) as e:

@@ -1,7 +1,7 @@
 import requests
 import os
 import random
-import pushplus
+import send
 
 class LoveQuoteApi:
     """
@@ -16,8 +16,8 @@ class LoveQuoteApi:
         """
         初始化LoveQuoteApi实例，从config.ini文件中读取API URL，并从环境变量中获取API密钥。
         """
-        self.logger = pushplus.setup_logger()
-        reader = pushplus.ConfigReader()
+        self.logger = send.setup_logger()
+        reader = send.ConfigReader()
         # 读取配置文件中的URL
         love_quote_config = reader.get_love_quote_config()
         self.say_love_url, self.cai_hong_pi_url = love_quote_config['SayLoveURL'], love_quote_config['CaiHongPiURL']
