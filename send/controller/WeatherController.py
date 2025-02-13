@@ -34,6 +34,7 @@ class WeatherController:
             f'{weather_str} {self.condition}'
         )
         if not weather_condition:
+            self.logger.warning(f"{service.__class__.__name__}服务返回空结果")
             return None
 
         self.logger.info(f"天气状况建议：{weather_condition}")
@@ -47,8 +48,11 @@ class WeatherController:
         # 获取天气状况建议
         weather_condition = self._get_weather_condition(weather, service_name)
 
+        if weather_condition is None:
+            weather_condition = "温馨提示：今日接口有问题，老婆注意安全，顺便跟我说一下~"
+
         # 拼接天气信息和天气状况建议
-        if weather and weather_condition:
+        if weather:
             # 构建最终的天气信息字符串
             weather_summary = []
             for city, info in weather.items():

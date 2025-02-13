@@ -18,7 +18,7 @@ class PushPlus:
 
         if result['status'] == 200 and result.get('send_email', False):
             try:
-                self.send_email.send_reminder_email('每日小情话', result.get('quote'), is_group_send=False)
+                self.send_email.send_reminder_email('每日小情话', result.get('quote'), is_group_send=True)
                 self.logger.info(f"邮件已发送, 内容：{result['quote']}")
             except Exception as e:
                 self.logger.error(f"邮件发送失败，原因: {str(e)}")
@@ -60,7 +60,7 @@ class PushPlus:
         weather = weather_controller.get_weather()
         if weather:
             try:
-                self.send_email.send_reminder_email(title='天气提醒', content=weather, is_group_send=False)
+                self.send_email.send_reminder_email(title='天气提醒', content=weather, is_group_send=True)
                 self.logger.info(f"邮件已发送, 内容：{weather}")
             except Exception as e:
                 self.logger.error(f"邮件发送失败，原因: {str(e)}")
