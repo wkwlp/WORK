@@ -1,6 +1,7 @@
 import pymysql
 from pymysql.cursors import DictCursor
-from typing import List, Dict, Optional
+from typing import  Optional, Any
+
 
 class DatabaseManager:
     def __init__(self, host: str, port: int, user: str, password: str, db: str, charset: str = 'utf8mb4'):
@@ -34,7 +35,7 @@ class DatabaseManager:
             print(f"数据库连接出错: {e}")
             return False
 
-    def fetch_data(self, fsnr: str) -> List[Dict]:
+    def fetch_data(self, fsnr: str) -> tuple[tuple[Any, ...], ...] | list[Any]:
         """根据fsnr查询数据"""
         if not self.connection:
             raise RuntimeError("请先调用connect方法建立连接")
@@ -55,17 +56,3 @@ class DatabaseManager:
             self.connection.close()
 
 # 使用示例
-if __name__ == "__main__":
-    db_manager = DatabaseManager(
-        host="114.132.200.133",
-        port=3306,
-        user="wlp",
-        password="wlp0919wlp",
-        db="send"
-    )
-
-    # 使用上下文管理器确保自动关闭连接
-    with db_manager as db:
-        results = db.fetch_data('3')
-        for row in results:
-            print(row)

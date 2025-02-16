@@ -37,20 +37,20 @@ class WeatherService:
             self.logger.error(f"获取{content}天气信息失败，错误信息：{weather.get('message')}")
             return None
 
-        if weather['data']['forecast']:
+        if weather['api']['forecast']:
             # 初始化空字典
             weather_dict = {}
 
             # 获取省份并添加到字典
-            province = weather['data']['forecast'][0]['province']
+            province = weather['api']['forecast'][0]['province']
             weather_dict['province'] = province
 
             # 获取城市并添加到字典
-            city = weather['data']['forecast'][0]['city']
+            city = weather['api']['forecast'][0]['city']
             weather_dict['city'] = city
 
             # 获取所有天气预报详情并添加到字典
-            casts = weather['data']['forecast'][0]['casts']
+            casts = weather['api']['forecast'][0]['casts']
             weather_dict['casts'] = casts
 
             weather_info = self._handle_weather_dict(weather_dict)

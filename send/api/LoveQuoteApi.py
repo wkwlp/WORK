@@ -63,3 +63,6 @@ class LoveQuoteApi:
         # 请求失败返回None
         self.logger.error("请求失败，返回空")
         return None
+
+a = LoveQuoteApi()
+print(a.get_random_quote())

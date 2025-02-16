@@ -1,6 +1,6 @@
 from .Config import ConfigReader
 from .Config  import setup_logger
-from .Config import
+from .Mysql import  DatabaseManager
 
 
-__all__ = ['ConfigReader','setup_logger']
+__all__ = ['ConfigReader','setup_logger','DatabaseManager']
