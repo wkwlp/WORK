@@ -53,6 +53,8 @@ jobs:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           TIAN_KEY: ${{ secrets.TIAN_KEY }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          HOST_PORT: ${{ secrets.HOST_PORT }}
         run: |
           python send/main.py love_quote 
 
