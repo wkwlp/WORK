@@ -8,6 +8,7 @@ class PushPlus:
         self.task_name = task_name
         self.logger = send.setup_logger()
         self.send_email = send.PushPlus()
+        self.love_mysql = send.LoveMysql()
 
     def handle_love_quote(self):
         """处理情话任务"""
@@ -20,10 +21,13 @@ class PushPlus:
             try:
                 self.send_email.send_reminder_email('每日小情话', result.get('quote'), is_group_send=True)
                 self.logger.info(f"邮件已发送, 内容：{result['quote']}")
+                self.love_mysql.update_love_hz(hzbh=result.get('hzbh'),fsnr=result.get('quote'),fszt=result.get('fszt'))
             except Exception as e:
                 self.logger.error(f"邮件发送失败，原因: {str(e)}")
+                self.love_mysql.update_love_hz(hzbh=result.get('hzbh'),fsnr=result.get('message'),fszt=result.get('fszt'))
         else:
             self.logger.warning(f"邮件发送失败，原因: {result.get('message', '未知错误')}")
+            self.love_mysql.update_love_hz(hzbh=result.get('hzbh'),fsnr=result.get('message'),fszt=result.get('fszt'))
 
     def handle_event(self):
         """处理事件任务"""
@@ -80,7 +84,7 @@ class PushPlus:
 
 if __name__ == '__main__':
     # 默认任务为 'love_quote'
-    default_task = 'weather'
+    default_task = 'love_quote'
 
     parser = argparse.ArgumentParser(description='PushPlus 任务运行器')
     parser.add_argument('task', type=str, choices=['love_quote', 'event','weather'],

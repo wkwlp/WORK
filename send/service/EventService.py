@@ -85,11 +85,11 @@ class EventService:
 
             # 提取嵌套的data字典
             result = response_data['result']
-            if 'api' not in result:
+            if 'data' not in result:
                 self.logger.error("API响应中未找到有效的data字段")
                 return {}
 
-            data = result['api']
+            data = result['data']
 
             calendar_data = data.get('date')
             calendar_holiday = data.get('holiday')

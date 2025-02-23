@@ -2,6 +2,7 @@ import requests
 import os
 import random
 import send
+import json
 
 class LoveQuoteApi:
     """
@@ -16,23 +17,21 @@ class LoveQuoteApi:
         """
         初始化LoveQuoteApi实例，从config.ini文件中读取API URL，并从环境变量中获取API密钥。
         """
-        self.logger = send.setup_logger()
-        reader = send.ConfigReader()
-        # 读取配置文件中的URL
-        love_quote_config = reader.get_love_quote_config()
-        self.say_love_url, self.cai_hong_pi_url = love_quote_config['SayLoveURL'], love_quote_config['CaiHongPiURL']
 
+        self.logger = send.setup_logger()
         self.api_key = os.getenv('TIAN_KEY')
         if not self.api_key:
+            self.logger.error("未设置 TIAN_KEY 环境变量")
             raise ValueError("未设置 TIAN_KEY 环境变量")
-        # 构建完整的URL
-
+        self.love_mysql = send.LoveMysql()
+        results = self.love_mysql.select_love_url()
+        if not results:
+            self.logger.error("数据库中没有获取到URL")
+        say_love_url, cai_hong_pi_url = results[0], results[1]
         self.quote_urls = [
-            f"{self.say_love_url}?key={self.api_key}",
-            f"{self.cai_hong_pi_url}?key={self.api_key}"
+            {"type": "say_love", "url": f"{say_love_url}?key={self.api_key}"},
+            {"type": "cai_hong_pi", "url": f"{cai_hong_pi_url}?key={self.api_key}"}
         ]
-
-
     def get_random_quote(self):
         """
         获取一条随机的情话。
@@ -40,9 +39,8 @@ class LoveQuoteApi:
         :return: 如果请求成功，则返回包含情话内容的字典；否则返回None。
         """
         # 随机选择一个URL
-        selected_url = random.choice(self.quote_urls)
-
-        self.logger.info(f"选择的URL: {selected_url.replace(self.api_key, '[SENSITIVE_DATA]', 1)}")
+        selected_quote = random.choice(self.quote_urls)
+        selected_url = selected_quote["url"]
 
         try:
             # 发送HTTP GET请求
@@ -52,9 +50,19 @@ class LoveQuoteApi:
             if response.status_code == 200:
                 # 解析返回的JSON数据
                 quote_data = response.json()
-                self.logger.info(f"收到的响应: {quote_data}")
-                # 返回获取到的数据
-                return quote_data
+                self.logger.info(f"RESPONSE: {quote_data}")
+                data = json.dumps(quote_data,ensure_ascii=False)
+
+                if selected_quote["type"] == "say_love":
+                    hzbh =self.love_mysql.insert_love_api(url_name='情话',response=data)
+                    self.love_mysql.insert_love_hz(hzbh=hzbh,fszt='F00')
+                    if hzbh:
+                        return hzbh,quote_data
+                else:
+                    hzbh = self.love_mysql.insert_love_api(url_name='彩虹屁',response=data)
+                    self.love_mysql.insert_love_hz(hzbh=hzbh,fszt='F00')
+                    if hzbh:
+                        return hzbh,quote_data
             else:
                 self.logger.error(f"请求失败，状态码：{response.status_code}")
         except Exception as e:
@@ -64,5 +72,6 @@ class LoveQuoteApi:
         self.logger.error("请求失败，返回空")
         return None
 
-a = LoveQuoteApi()
-print(a.get_random_quote())
+if __name__ == '__main__':
+    a = LoveQuoteApi()
+    a.get_random_quote()

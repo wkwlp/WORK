@@ -92,7 +92,7 @@ class WeatherApi:
             return {
                 'status': 400,
                 'message': '请求内容不能为空，请求示例："南宁市预报天气"',
-                'api': None
+                'data': None
             }
 
         api_url = self._build_api_url(content)
@@ -100,7 +100,7 @@ class WeatherApi:
             return {
                 'status': 400,
                 'message': 'URL不合法，请检查请求地址是否正确',
-                'api': None
+                'data': None
             }
 
         try:
@@ -114,7 +114,7 @@ class WeatherApi:
             return {
                 'status': 500,
                 'message': f"服务请求失败: {str(e)}",
-                'api': None
+                'data': None
             }
 
         try:
@@ -124,21 +124,21 @@ class WeatherApi:
                 return {
                     'status': 502,
                     'message': result.get('info', '未知错误'),
-                    'api': None
+                    'data': None
                 }
         except ValueError:
             self.logger.error("响应数据解析失败")
             return {
                 'status': 503,
                 'message': '数据解析失败',
-                'api': None
+                'data': None
             }
 
         # 数据格式标准化
         return {
             'status': 200,
             'message': 'success',
-            'api': {
+            'data': {
                 'lives': result.get('lives', []),
                 'forecast': result.get('forecasts', [])
             }

@@ -1,6 +1,5 @@
 import send
 
-
 class LoveQuoteController:
     """
     负责业务逻辑判断并决定是否发送邮件的控制器类。
@@ -17,11 +16,15 @@ class LoveQuoteController:
         """
         self.logger = send.setup_logger()
         self.love_quote_service = send.LoveQuoteService()
-        reader = send.ConfigReader()
-        # 读取配置文件
-        love_quote_config = reader.get_love_quote_config()
-        self.custom_values, self.max_retries = love_quote_config['Custom_Values'], love_quote_config['Max_Retries']
-        self.quote = self.get_initial_quote()
+        self.love_mysql = send.LoveMysql()
+        self.count = self.love_mysql.select_love_count()
+        love_word = self.love_mysql.select_love_word()
+        if love_word:
+            self.love_word = love_word
+        else:
+            self.logger.error("无法获取屏蔽词汇，请检查数据库")
+
+        self.hzbh,self.quote = self.get_initial_quote()
 
     def get_initial_quote(self):
         """
@@ -30,8 +33,8 @@ class LoveQuoteController:
         :return: 从Service层获取的情话字符串，如果获取失败则返回None。
         """
         try:
-            initial_quote = self.love_quote_service.get_quote()
-            return initial_quote
+            hzbh,initial_quote = self.love_quote_service.get_quote()
+            return hzbh,initial_quote
         except Exception as e:
             self.logger.error(f"获取初始情话时发生错误: {e}")
             return None
@@ -48,25 +51,32 @@ class LoveQuoteController:
         """
         retries = 0
 
-        while retries < self.max_retries:
+        while retries < self.count:
             if not self.quote:
                 self.logger.warning("无法获取有效的情话数据，返回默认数据")
                 self.quote = f"致亲爱的老婆：今天接口有问题，我亲口跟你说：我永远爱你！"
                 break
 
-            if any(value in self.quote for value in self.custom_values):
-                self.logger.warning(f"情话包含不合适的词语: {self.custom_values}")
+            while any(value in self.quote for value in self.love_word):
+                self.logger.warning(f"情话包含不合适的词语: {self.love_word}")
                 retries += 1
-                if retries >= self.max_retries:
+                if retries >= self.count:
                     self.quote = f"致亲爱的老婆：今天接口有问题，我亲口跟你说：我永远爱你！"
+                    self.logger.warning(f"连续{self.count}次都包含不合适的词语，返回默认数据")
                     break
                 # 重新获取情话
-                self.quote = self.get_initial_quote()
+                self.hzbh,self.quote = self.get_initial_quote()
                 self.logger.warning(f"重新获取的情话为: {self.quote}")
             else:
                 break
 
         if self.quote:
-            return {'status': 200, 'message': '邮件准备发送', 'quote': self.quote, 'send_email': True}
+            return {'status': 200, 'message': '邮件准备发送', 'quote': self.quote, 'hzbh':self.hzbh,
+                    'fszt':'F03','send_email': True}
         else:
-            return {'status': 400, 'message': '无法获取有效的情话数据'}
+            return {'status': 400, 'message': '无法获取有效的情话数据', 'hzbh':self.hzbh,
+                    'fszt':'F20','send_email': False}
+
+if __name__ == '__main__':
+    a = LoveQuoteController()
+    a.handle_quote()
