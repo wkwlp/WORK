@@ -55,6 +55,7 @@ jobs:
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           HOST_PORT: ${{ secrets.HOST_PORT }}
+          HOSTPORT: ${{ secrets.HOSTPORT }}
         run: |
           python send/main.py love_quote 
 
@@ -66,6 +67,7 @@ jobs:
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           HOST_PORT: ${{ secrets.HOST_PORT }}
+          HOSTPORT: ${{ secrets.HOSTPORT }}
         run: |
           python send/main.py event 
 
