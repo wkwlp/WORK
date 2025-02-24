@@ -1,5 +1,6 @@
 from typing import Optional, List, Union
 from send.utils.mysql.Mysql import MysqlOperations
+from datetime import timezone, timedelta
 import send
 from datetime import datetime
 
@@ -56,7 +57,9 @@ class LoveMysql:
         return self._select(table, columns, conditions, 'int')
 
     def insert_love_api(self, url_name: Optional[str] = None, response: Optional[str] = None) -> str:
-        now = datetime.now()
+        # 获取当前时间并转换为中国时区
+        china_tz = timezone(timedelta(hours=8))
+        now = datetime.now(china_tz)
         hzbh = now.strftime('%Y%m%d%H%M%S%f')
         insert_values = {
             "HZBH": hzbh,
@@ -69,7 +72,10 @@ class LoveMysql:
         return hzbh
 
     def insert_love_hz(self, hzbh: str, fszt: str, fsnr: Optional[str] = None) -> str:
-        now_czsj = datetime.now()
+        # 获取当前时间并转换为中国时区
+        china_tz = timezone(timedelta(hours=8))
+        now_czsj = datetime.now(china_tz)
+
         insert_values = {
             "HZBH": hzbh,
             "FSNR": fsnr,
@@ -81,7 +87,9 @@ class LoveMysql:
         return hzbh
 
     def update_love_hz(self, hzbh: str, fszt: str, fsnr: Optional[str] = None):
-        now_fssj = datetime.now()
+        # 获取当前时间并转换为中国时区
+        china_tz = timezone(timedelta(hours=8))
+        now_fssj = datetime.now(china_tz)
         update_values = {
             "FSZT": fszt,
             "FSNR": fsnr,

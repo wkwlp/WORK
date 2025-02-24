@@ -48,7 +48,6 @@ class MysqlConnection:
             "charset": "utf8mb4",
             "cursorclass": DictCursor
         }
-        self.logger.info(f"数据库连接配置: {db_config}")  # 添加日志
         return db_config
 
     def __enter__(self):
@@ -56,7 +55,7 @@ class MysqlConnection:
         try:
             # 建立数据库连接
             self.connection = pymysql.connect(**self.db_config)
-            self.logger.info("数据库连接成功")  # 添加日志
+
             return self.connection
         except pymysql.MySQLError as e:
             # 连接出错时打印错误信息
@@ -179,8 +178,7 @@ class MysqlOperations:
                 with conn.cursor() as cursor:
                     rows_affected = cursor.executemany(sql, params)
                 conn.commit()
-                self.logger.info("事务已提交")  # 添加日志
-                self.logger.info(f"插入成功，影响行数: {rows_affected}")
+
                 self.logger.info(f"TOTAL: {rows_affected}")
                 return rows_affected
             except Exception as e:
