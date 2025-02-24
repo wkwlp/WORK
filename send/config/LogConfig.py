@@ -58,13 +58,14 @@ def setup_logger(level=logging.DEBUG):
 
     # ----------------- 网络处理器 -----------------
     try:
+        def parse_host_port(host_port_str):
+            host, port = host_port_str.split(':')
+            return host, int(port)
         host_port_str = os.getenv("HOST_PORT")
         if not host_port_str :
-            logger.error("必须设置 HOST_PORT环境变量")
-        host, port = host_port_str.split(':')
-        tcp_handler = SocketHandler(
-            host,int(port)
-        )
+            logger.error("必须设置 HOST_PORT 环境变量")
+        host, port = parse_host_port(host_port_str)
+        tcp_handler = SocketHandler(host, port)
         tcp_handler.setLevel(level)
         logger.addHandler(tcp_handler)
     except Exception as e:

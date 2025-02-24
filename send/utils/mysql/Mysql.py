@@ -28,7 +28,7 @@ class MysqlConnection:
             return user, password
 
         # 读取环境变量
-        host_port_str = os.getenv("HOST_PORT")
+        host_port_str = os.getenv("HOSTPORT")
         user_password_str = os.getenv("USER_PASSWORD")
 
         if not host_port_str or not user_password_str:

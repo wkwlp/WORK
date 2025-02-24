@@ -64,6 +64,8 @@ jobs:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           CalendarKEY: ${{ secrets.CALENDARKEY }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          HOST_PORT: ${{ secrets.HOST_PORT }}
         run: |
           python send/main.py event 
 
@@ -75,5 +77,8 @@ jobs:
           DeepSeek_Key: ${{ secrets.DeepSeek_Key }}
           HunYuan_Key: ${{ secrets.HunYuan_Key }}
           PUSHPLUS_GROUP_TOPIC: ${{ secrets.PUSHPLUS_GROUP_TOPIC }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          HOST_PORT: ${{ secrets.HOST_PORT }}
+          HOSTPORT: ${{ secrets.HOSTPORT }}
         run: |
           python send/main.py weather
