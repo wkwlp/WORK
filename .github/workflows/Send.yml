@@ -46,7 +46,24 @@ jobs:
       - name: Set up PYTHONPATH
         run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
 
-      # 第五步：根据触发时间选择性地运行相应的脚本
+      # 第五步：配置日志发送到服务器
+      - name: Configure Logging
+        run: |
+          cat << EOF > send/log_config.py
+          import logging
+          import logging.handlers
+
+          # 配置日志记录器
+          logger = logging.getLogger('GitHubActions')
+          logger.setLevel(logging.DEBUG)
+
+          # 创建SocketHandler，将日志发送到服务器
+          socket_handler = logging.handlers.SocketHandler('${{ secrets.LOG_SERVER_IP }}', ${{ secrets.LOG_SERVER_PORT }})
+          socket_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(name)s.%(module)s.%(funcName)s:%(lineno)d - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
+          logger.addHandler(socket_handler)
+          EOF
+
+      # 第六步：根据触发时间选择性地运行相应的脚本
       - name: Run Saylove Reminder Script
         if: github.event_name == 'schedule' && github.event.schedule == '40 0 * * *' || github.event_name == 'workflow_dispatch'
         env:
@@ -57,7 +74,8 @@ jobs:
           HOST_PORT: ${{ secrets.HOST_PORT }}
           HOSTPORT: ${{ secrets.HOSTPORT }}
         run: |
-          python send/main.py love_quote 
+          python -c "import send.log_config"  # 加载日志配置
+          python send/main.py love_quote
 
       - name: Run Event Reminder Script
         if: github.event_name == 'schedule' && github.event.schedule == '00 03 * * *' || github.event_name == 'workflow_dispatch'
@@ -69,7 +87,8 @@ jobs:
           HOST_PORT: ${{ secrets.HOST_PORT }}
           HOSTPORT: ${{ secrets.HOSTPORT }}
         run: |
-          python send/main.py event 
+          python -c "import send.log_config"  # 加载日志配置
+          python send/main.py event
 
       - name: Run Weather Reminder Script
         if: github.event_name == 'schedule' && github.event.schedule == '00 13 * * *' || github.event_name == 'workflow_dispatch'
@@ -83,4 +102,5 @@ jobs:
           HOST_PORT: ${{ secrets.HOST_PORT }}
           HOSTPORT: ${{ secrets.HOSTPORT }}
         run: |
+          python -c "import send.log_config"  # 加载日志配置
           python send/main.py weather
