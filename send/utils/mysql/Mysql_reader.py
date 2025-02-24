@@ -98,13 +98,25 @@ class LoveMysql:
         conditions = {"HZBH": hzbh}
         self.mysql_ops.update("SEND_HZ", update_values, conditions)
 
+    def update_love_count(self, hzbh: str):
+        fszt = 'F20'
+        fsnr = '情话包含不合适的词汇'
+        update_values = {
+            "FSZT": fszt,
+            "FSNR": fsnr
+        }
+        conditions = {"HZBH": hzbh}
+        self.mysql_ops.update("SEND_HZ", update_values, conditions)
+
     def update_love_api(self, hzbh: str, quote: Optional[str] = None):
         update_values = {"QUOTE": quote}
         conditions = {"HZBH": hzbh}
         self.mysql_ops.update("SEND_DATA", update_values, conditions)
 
+
+
 if __name__ == '__main__':
     a = LoveMysql()
     b = a.select_love_word()
     logger.info(b)
-
+    a.update_love_count('20250224172316666221')

@@ -58,6 +58,7 @@ class LoveQuoteController:
                 break
 
             while any(value in self.quote for value in self.love_word):
+                self.love_mysql.update_love_count(self.hzbh)
                 self.logger.warning(f"情话包含不合适的词语: {self.love_word}")
                 retries += 1
                 if retries >= self.count:
@@ -71,6 +72,7 @@ class LoveQuoteController:
                 break
 
         if self.quote:
+            self.quote = f"致亲爱的老婆：{self.quote}"
             return {'status': 200, 'message': '邮件准备发送', 'quote': self.quote, 'hzbh':self.hzbh,
                     'fszt':'F03','send_email': True}
         else:
