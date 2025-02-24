@@ -32,7 +32,7 @@ class MysqlConnection:
         user_password_str = os.getenv("USER_PASSWORD")
 
         if not host_port_str or not user_password_str:
-            self.logger.error("必须设置 HOST_PORT 和 USER_PASSWORD 环境变量")
+            self.logger.error("必须设置 HOSTPORT 和 USER_PASSWORD 环境变量")
 
         # 解析环境变量
         host, port = parse_host_port(host_port_str)
