@@ -13,7 +13,7 @@
 
 
 ## 工具配置
-### API工具（都是免费的，可以自行注册使用，也可以询问作者）
+### API工具（都是免费的，可以自行注册使用）
 - PushPlus安装教程（消息推送API）：https://blog.csdn.net/yyz_1987/article/details/127232881
 - 聚合数据注册地址（日历API）：https://www.juhe.cn/register
 - 高德开放平台注册地址（天气API）：https://lbs.amap.com/?ref=https://console.amap.com/dev/index
