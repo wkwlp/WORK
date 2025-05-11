@@ -46,7 +46,7 @@ class WeatherController:
         self.logger.info(f"天气信息：{weather}")
 
         # 获取天气状况建议
-        weather_condition = self._get_weather_condition(weather, service_name)
+        weather_condition = self._get_weather_condition(weather, service_name='deepseek')
 
         if weather_condition is None:
             weather_condition = "温馨提示：今日接口有问题，老婆注意安全，顺便跟我说一下~"
